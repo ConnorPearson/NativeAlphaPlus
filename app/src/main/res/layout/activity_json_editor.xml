@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface">
+
+    <include layout="@layout/toolbar_back_action" android:id="@+id/toolbar"/>
+
+    <EditText
+        android:id="@+id/jsonEditor"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"
+        android:inputType="textMultiLine|textNoSuggestions"
+        android:fontFamily="monospace"
+        android:padding="16dp"
+        android:background="@android:color/transparent"
+        android:textColor="?attr/colorOnSurface" />
+
+    <Button
+        android:id="@+id/btnSaveJson"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/save" />
+
+</LinearLayout>
