@@ -1,12 +1,12 @@
 <resources>
-    <color name="md_theme_primary">#F0BE6D</color>
-    <color name="md_theme_onPrimary">#432C00</color>
-    <color name="md_theme_primaryContainer">#604100</color>
-    <color name="md_theme_onPrimaryContainer">#FFDEAC</color>
-    <color name="md_theme_secondary">#DBC3A1</color>
-    <color name="md_theme_onSecondary">#3D2E16</color>
-    <color name="md_theme_secondaryContainer">#55442A</color>
-    <color name="md_theme_onSecondaryContainer">#F8DFBB</color>
+    <color name="md_theme_primary">#FFB4AB</color>
+    <color name="md_theme_onPrimary">#690005</color>
+    <color name="md_theme_primaryContainer">#93000A</color>
+    <color name="md_theme_onPrimaryContainer">#FFDAD6</color>
+    <color name="md_theme_secondary">#E7BDB8</color>
+    <color name="md_theme_onSecondary">#442926</color>
+    <color name="md_theme_secondaryContainer">#5D3F3C</color>
+    <color name="md_theme_onSecondaryContainer">#FFDAD6</color>
     <color name="md_theme_tertiary">#B5CEA4</color>
     <color name="md_theme_onTertiary">#213618</color>
     <color name="md_theme_tertiaryContainer">#374C2C</color>

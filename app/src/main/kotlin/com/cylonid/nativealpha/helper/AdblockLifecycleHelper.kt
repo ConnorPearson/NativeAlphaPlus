@@ -3,9 +3,9 @@ package com.cylonid.nativealpha.helper
 
 import android.app.Activity
 import android.content.DialogInterface
-import androidx.appcompat.app.AlertDialog
 import com.cylonid.nativealpha.R
 import com.cylonid.nativealpha.model.DataManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class AdblockLifecycleHelper(private val activity: Activity) {
 
@@ -29,7 +29,7 @@ class AdblockLifecycleHelper(private val activity: Activity) {
     }
 
     private fun showWarningDialog() {
-        AlertDialog.Builder(activity)
+        MaterialAlertDialogBuilder(activity, R.style.AppTheme_AlertDialog)
             .setMessage(activity.getString(R.string.adblock_warning_text))
             .setCancelable(false)
             .setIcon(android.R.drawable.ic_dialog_alert)

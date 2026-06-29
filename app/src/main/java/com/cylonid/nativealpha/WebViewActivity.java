@@ -2,11 +2,13 @@ package com.cylonid.nativealpha;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.app.DownloadManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -25,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
@@ -51,6 +54,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
@@ -71,15 +76,24 @@ import com.cylonid.nativealpha.util.NotificationUtils;
 import com.cylonid.nativealpha.util.Utility;
 import com.cylonid.nativealpha.util.WebViewLauncher;
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,6 +104,9 @@ import io.github.edsuns.adfilter.Filter;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import static com.cylonid.nativealpha.util.Const.CODE_OPEN_FILE;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class WebViewActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
@@ -119,6 +136,39 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private AdblockProviderApiHelper adblockProviderApiHelper;
     private AdblockLifecycleHelper adblockLifecycleHelper;
 
+    private Map<String, JSONObject> cachedSitesMap = new HashMap<>();
+
+    private void loadSitesConfig() {
+        try {
+            File internalFile = new File(getFilesDir(), "sites.json");
+            InputStream is;
+            
+            if (internalFile.exists()) {
+                is = new FileInputStream(internalFile);
+                Log.d("NativeAlpha", "Loading sites config from internal storage");
+            } else {
+                is = getAssets().open("sites.json");
+                Log.d("NativeAlpha", "Loading sites config from assets");
+            }
+
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+
+            JSONObject json = new JSONObject(new String(buffer, StandardCharsets.UTF_8));
+            cachedSitesMap.clear();
+
+            for (Iterator<String> it = json.keys(); it.hasNext(); ) {
+                String domain = it.next();
+                cachedSitesMap.put(domain.toLowerCase(), json.getJSONObject(domain));
+            }
+
+        } catch (Exception e) {
+            Log.e("NativeAlpha", "Error loading sites config", e);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,8 +186,9 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         } else {
             if(webapp.isBiometricProtection()) {
                 new BiometricPromptHelper(WebViewActivity.this).showPrompt(() -> setupWebView(), () -> finish(), getString(R.string.bioprompt_restricted_webapp));
+            } else {
+                setupWebView();
             }
-            setupWebView();
         }
     }
 
@@ -166,6 +217,8 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             }
         }
 
+        loadSitesConfig();
+
         setContentView(R.layout.full_webview);
 
         if(webapp.isKeepAwake()) {
@@ -175,6 +228,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         String url = webapp.getBaseUrl();
 
         wv = findViewById(R.id.webview);
+        wv.setBackgroundColor(Color.BLACK);
         progressBar = findViewById(R.id.progressBar);
 
         List<AdblockConfig> adblockConfigs = DataManager.getInstance().getSettings().getGlobalWebApp().getAdBlockSettings();
@@ -182,6 +236,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             wv.setVisibility(View.GONE);
             wv = findViewById(R.id.adblockwebview);
             wv.setVisibility(View.VISIBLE);
+            wv.setBackgroundColor(Color.BLACK);
 
             adFilter.setupWebView(wv);
             adblockLifecycleHelper.beforeAdblockOperation(() -> adblockProviderApiHelper.synchronizeAdblockProviderWithSettings(adblockConfigs));
@@ -246,6 +301,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }
 
         CUSTOM_HEADERS = initCustomHeaders(webapp.isSendSavedataRequest());
+        applySiteSystemBars(url);
         loadURL(wv, url);
         wv.setWebChromeClient(new CustomWebChromeClient());
         wv.setOnLongClickListener(view -> {
@@ -382,12 +438,62 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         });
     }
 
+    private JSONObject getSiteConfig(String url) {
+        if (cachedSitesMap == null || url == null) return null;
+        try {
+            String host = Uri.parse(url).getHost();
+            if (host == null) return null;
+            host = host.toLowerCase();
+
+            JSONObject site = cachedSitesMap.get(host);
+            if (site != null) return site;
+
+            // Fuzzy match: check if host ends with any key in the map (e.g., map.blitzortung.org matches blitzortung.org)
+            for (String key : cachedSitesMap.keySet()) {
+                if (host.endsWith("." + key) || key.equals(host)) {
+                    return cachedSitesMap.get(key);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void applySiteSystemBars(String url) {
+        try {
+            JSONObject site = getSiteConfig(url);
+            if (site == null) return;
+
+            String statusBar = site.optString("statusBarColor", null);
+            String bottomBar = site.optString("bottomBarColor", null);
+            String loadingBar = site.optString("loadingBarColor", null);
+
+            Window window = getWindow();
+            WindowInsetsControllerCompat windowInsetsController = new WindowInsetsControllerCompat(window, window.getDecorView());
+
+            if (statusBar != null && !statusBar.isEmpty()) {
+                int color = Color.parseColor(statusBar);
+                window.setStatusBarColor(color);
+                windowInsetsController.setAppearanceLightStatusBars(ColorUtils.calculateLuminance(color) > 0.5);
+            }
+
+            if (bottomBar != null && !bottomBar.isEmpty()) {
+                int color = Color.parseColor(bottomBar);
+                window.setNavigationBarColor(color);
+                windowInsetsController.setAppearanceLightNavigationBars(ColorUtils.calculateLuminance(color) > 0.5);
+            }
+
+            if (loadingBar != null && !loadingBar.isEmpty() && progressBar != null) {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor(loadingBar)));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @SuppressLint("RequiresFeature")
     private void setDarkModeIfNeeded() {
-        if (!BuildConfig.FLAVOR.contains("extended")) {
-            return;
-        }
-
         boolean needsForcedDarkMode = webapp.isUseTimespanDarkMode() &&
                 DateUtils.isInInterval(DateUtils.convertStringToCalendar(webapp.getTimespanDarkModeBegin()), Calendar.getInstance(), DateUtils.convertStringToCalendar(webapp.getTimespanDarkModeEnd()))
                 || (!webapp.isUseTimespanDarkMode() && webapp.isForceDarkMode());
@@ -412,7 +518,6 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 }
             } else {
                 getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                wv.setBackgroundColor(Color.WHITE);
 
                 if (isForceDarkSupported) {
                     WebSettingsCompat.setForceDark(wv.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
@@ -547,7 +652,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         wv.resumeTimers();
         this.setDarkModeIfNeeded();
 
-        
+
         if(webapp.isBiometricProtection()) {
             View fullActivityView = findViewById(R.id.webviewActivity);
             fullActivityView.setVisibility(View.GONE);
@@ -602,7 +707,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private void loadURL(final WebView view, final String url) {
         final WebApp webApp = DataManager.getInstance().getWebApp(webappID);
         if (url.contains("http://") && !webApp.isAllowHttp()) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(WebViewActivity.this);
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(WebViewActivity.this, R.style.AppTheme_AlertDialog);
 
             builder.setTitle(getString(R.string.no_https_dialog_title));
             builder.setMessage(getString(R.string.no_https_dialog_msg));
@@ -754,7 +859,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 return;
             }
 
-            new AlertDialog.Builder(WebViewActivity.this).setTitle(getPermissionRequestStringResource("dialog_permission_", resId, "_title"))
+            new MaterialAlertDialogBuilder(WebViewActivity.this, R.style.AppTheme_AlertDialog).setTitle(getPermissionRequestStringResource("dialog_permission_", resId, "_title"))
                     .setMessage(getPermissionRequestStringResource("dialog_permission_", resId, "_txt"))
                     .setPositiveButton(android.R.string.yes, (dialog, id) -> {
                         enablePermissionBoolOnWebApp(successCallback);
@@ -867,7 +972,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
     private void showHttpAuthDialog(final HttpAuthHandler handler, String host, String realm) {
         DialogHttpAuthBinding localBinding = DialogHttpAuthBinding.inflate(LayoutInflater.from(this));
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this, R.style.AppTheme_AlertDialog)
                 .setView(localBinding.getRoot())
                 .setTitle(getString(R.string.http_auth_title))
                 .setMessage(getString(R.string.enter_http_auth_credentials, realm, host))
@@ -881,7 +986,57 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 .setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> handler.cancel())
                 .show();
     }
+    private void applySiteRules(WebView view, String url) {
+        try {
+            JSONObject site = getSiteConfig(url);
+            if (site == null) return;
 
+            StringBuilder cssToInject = new StringBuilder();
+
+            // 1. Convert 'remove' array to hiding CSS to prevent shifting
+            JSONArray remove = site.optJSONArray("remove");
+            if (remove != null && remove.length() > 0) {
+                for (int j = 0; j < remove.length(); j++) {
+                    if (j > 0) cssToInject.append(",");
+                    cssToInject.append(remove.getString(j));
+                }
+                cssToInject.append(" { display: none !important; visibility: hidden !important; pointer-events: none !important; } ");
+            }
+
+            // 2. Add existing injectCss
+            JSONArray css = site.optJSONArray("injectCss");
+            if (css != null) {
+                for (int j = 0; j < css.length(); j++) {
+                    cssToInject.append(css.getString(j));
+                }
+            }
+
+            if (cssToInject.length() > 0) {
+                String js = "(function() {" +
+                        "var style = document.getElementById('na-site-rules') || document.createElement('style');" +
+                        "style.id = 'na-site-rules';" +
+                        "style.textContent = " + JSONObject.quote(cssToInject.toString()) + ";" +
+                        "if (!style.parentElement) (document.head || document.documentElement).appendChild(style);" +
+                        "})();";
+                view.evaluateJavascript(js, null);
+            }
+
+            // 3. Actual DOM removal (cleanup) - only run if DOM is likely ready
+            if (remove != null && remove.length() > 0 && !"onPageStarted".equals(new Throwable().getStackTrace()[1].getMethodName())) {
+                StringBuilder removeJs = new StringBuilder("(function(){");
+                for (int j = 0; j < remove.length(); j++) {
+                    removeJs.append("document.querySelectorAll(")
+                            .append(JSONObject.quote(remove.getString(j)))
+                            .append(").forEach(function(e){e.remove();});");
+                }
+                removeJs.append("})();");
+                view.evaluateJavascript(removeJs.toString(), null);
+            }
+
+        } catch (Exception e) {
+            Log.e("NativeAlpha", "Error in applySiteRules", e);
+        }
+    }
     private class CustomBrowser extends WebViewClient {
 
         private AdFilter adFilter = AdFilter.Companion.get();
@@ -892,18 +1047,29 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }
 
         @Override
+        public void onPageCommitVisible(WebView view, String url) {
+            applySiteRules(view, url);
+            super.onPageCommitVisible(view, url);
+        }
+
+        @Override
         public void onPageFinished(WebView view, String url) {
-            if(url.equals("about:blank")) {
+            applySiteRules(view, url);
+
+            if (url.equals("about:blank")) {
                 String langExtension = LocaleUtils.getFileEnding();
                 wv.loadUrl("file:///android_asset/errorSite/error_" + langExtension + ".html");
+                return;
             }
-            wv.evaluateJavascript("document.addEventListener(\"visibilitychange\",function (event) {event.stopImmediatePropagation();},true);", null);
             super.onPageFinished(view, url);
         }
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            applySiteSystemBars(url);
+            applySiteRules(view, url);
             adFilter.performScript(view, url);
+
             super.onPageStarted(view, url, favicon);
         }
 
@@ -937,7 +1103,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 return;
             }
 
-            final AlertDialog.Builder builder = new AlertDialog.Builder(WebViewActivity.this);
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(WebViewActivity.this, R.style.AppTheme_AlertDialog);
 
             String message = getString(R.string.ssl_error_msg_line1) + " ";
             switch (error.getPrimaryError()) {

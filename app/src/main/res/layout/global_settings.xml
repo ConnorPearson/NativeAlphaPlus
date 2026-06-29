@@ -65,12 +65,18 @@
                             android:layout_height="wrap_content"
                             android:text="@string/global_web_app_settings" />
 
+                        <Button
+                            android:id="@+id/btnEditSiteRules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Edit Site Rules (JSON)" />
+
                         <LinearLayout
                             android:id="@+id/layoutUIModeSelection"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:visibility="gone">
+                            android:visibility="visible">
 
                             <TextView
                                 android:layout_width="wrap_content"

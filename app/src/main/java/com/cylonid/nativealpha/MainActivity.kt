@@ -8,7 +8,6 @@ import android.text.Html
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
-import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +19,7 @@ import com.cylonid.nativealpha.model.DataManager
 import com.cylonid.nativealpha.model.WebApp
 import com.cylonid.nativealpha.util.Const
 import com.cylonid.nativealpha.util.EntryPointUtils.entryPointReached
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.github.edsuns.adfilter.AdFilter
 
@@ -75,15 +75,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun personalizeToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        @StringRes val appName =
-            if (BuildConfig.FLAVOR == "extended") R.string.app_name_plus else R.string.app_name
-        toolbar.setTitle(appName)
+        toolbar.setTitle(R.string.app_name_plus)
         setSupportActionBar(toolbar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
+
+        // Force icons to show in overflow menu
+        if (menu.javaClass.simpleName == "MenuBuilder") {
+            try {
+                val m = menu.javaClass.getDeclaredMethod(
+                    "setOptionalIconsVisible", Boolean::class.javaPrimitiveType
+                )
+                m.isAccessible = true
+                m.invoke(menu, true)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         return true
     }
 
@@ -114,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             ${getString(R.string.import_success_dialog_txt3)}
             """.trimIndent()
 
-        AlertDialog.Builder(this).setMessage(message)
+        MaterialAlertDialogBuilder(this, R.style.AppTheme_AlertDialog).setMessage(message)
             .setCancelable(false)
             .setTitle(
                 getString(
@@ -130,7 +141,7 @@ class MainActivity : AppCompatActivity() {
                         getString(R.string.restore_shortcut, webapp.title),
                         Html.FROM_HTML_MODE_COMPACT
                     )
-                    AlertDialog.Builder(this)
+                    MaterialAlertDialogBuilder(this, R.style.AppTheme_AlertDialog)
                         .setMessage(msg)
                         .setPositiveButton(R.string.ok) { _: DialogInterface?, _: Int ->
                             val frag = ShortcutDialogFragment.newInstance(webapp)
@@ -148,7 +159,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun buildAddWebsiteDialog(title: String) {
         val localBinding = AddWebsiteDialogueBinding.inflate(layoutInflater)
-        val dialog = AlertDialog.Builder(this@MainActivity)
+        val dialog = MaterialAlertDialogBuilder(this@MainActivity, R.style.AppTheme_AlertDialog)
             .setView(localBinding.root)
             .setTitle(title)
             .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->

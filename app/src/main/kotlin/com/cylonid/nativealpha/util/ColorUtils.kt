@@ -12,16 +12,15 @@ object ColorUtils {
     fun getColorResFromThemeAttr(context: Context, @AttrRes resId: Int, @ColorRes fallback: Int): Int {
         val typedValue = TypedValue()
         val theme = context.theme
-        var colorResId = fallback
 
         val success = theme.resolveAttribute(
             resId,
             typedValue,
             true
         )
-        if (success) {
-            colorResId = typedValue.resourceId
+        if (success && typedValue.resourceId != 0) {
+            return typedValue.resourceId
         }
-        return colorResId
+        return fallback
     }
 }

@@ -183,4 +183,11 @@
     <string name="adblock_warning_text">Your current ad blocker settings may cause problems or crashes. Unfortunately, not all filter lists work on every device.\n\nIt is recommended to clear the filter lists and repopulate them as a test.</string>
     <string name="warning">Warning</string>
 
+    <string name="site_rules_config">Site Specific Rules (JSON)</string>
+    <string name="status_bar_color">Status Bar Color</string>
+    <string name="bottom_bar_color">Bottom Bar Color</string>
+    <string name="loading_bar_color">Loading Bar Color</string>
+    <string name="dom_removal_selectors">DOM Removal (Selectors, one per line)</string>
+    <string name="inject_css_rules">Inject CSS (Rules, one per line)</string>
+    <string name="reset_to_original">Reset to Original Rules</string>
 </resources>

@@ -20,7 +20,8 @@ class AboutActivity : AppCompatActivity() {
         val baseBinding = ActivityToolbarBaseBinding.inflate(layoutInflater)
         setContentView(baseBinding.root)
 
-        baseBinding.activityContent.addView(generateAboutPageView())
+        val aboutView = generateAboutPageView()
+        baseBinding.activityContent.addView(aboutView)
 
         val toolbar = baseBinding.toolbar.topAppBar
         setSupportActionBar(toolbar)
@@ -78,7 +79,9 @@ class AboutActivity : AppCompatActivity() {
                 this, com.google.android.material.R.attr.colorOnSurface, R.color.about_github_color
             )
         )
-        gitHubElement.setIconNightTint(R.color.about_item_dark_text_color)
+        gitHubElement.setIconNightTint(getColorResFromThemeAttr(
+            this, com.google.android.material.R.attr.colorOnSurface, R.color.pure_white
+        ))
         gitHubElement.setValue(id)
 
         val intent = Intent()

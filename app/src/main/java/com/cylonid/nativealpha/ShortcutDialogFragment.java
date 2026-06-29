@@ -31,6 +31,7 @@ import com.cylonid.nativealpha.util.Const;
 import com.cylonid.nativealpha.util.NotificationUtils;
 import com.cylonid.nativealpha.util.ShortcutIconUtils;
 import com.cylonid.nativealpha.util.WebViewLauncher;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
@@ -121,7 +122,7 @@ public class ShortcutDialogFragment extends DialogFragment  {
 
         final View view = getLayoutInflater().inflate(R.layout.shortcut_dialog, null);
 
-        final AlertDialog dialog = new AlertDialog.Builder(requireActivity())
+        final AlertDialog dialog = new MaterialAlertDialogBuilder(requireActivity(), R.style.AppTheme_AlertDialog)
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, (dialog1, which) -> {

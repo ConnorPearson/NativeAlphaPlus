@@ -1,0 +1,139 @@
+{
+  "blitzortung.org": {
+    "statusBarColor": "#2f3e59",
+    "bottomBarColor": "#2f3e59",
+    "loadingBarColor": "#2f3e59",
+    "remove": [
+      "#AdvertismentDiv_bottom",
+      ".ft-menu",
+      "#ft-reg-bubble"
+    ],
+    "injectCss": [
+      "@media only screen and (max-width: 799px) and (min-height: 600px){.MapDiv{top:0!important;width:100%!important;}}",
+      ".mapboxgl-canvas{height:100%!important;}",
+      ".MapDiv, #map, .mapboxgl-canvas { height: 100vh !important; bottom: 0 !important;}"
+    ]
+  },
+
+  "www.amazon.co.uk": {
+    "statusBarColor": "#232f3e",
+    "bottomBarColor": "#ffffff",
+    "loadingBarColor": "#232f3e",
+    "remove": [
+      "#nav-app-banner-container"
+    ],
+    "injectCss": [
+      "html, body { margin:0 !important; padding:0 !important; overflow:hidden !important; background:#000 !important; }"
+    ]
+  },
+
+  "picturehouses.com": {
+    "statusBarColor": "#ffffff",
+    "bottomBarColor": "#ffffff",
+    "loadingBarColor": "#ffffff"
+  },
+
+  "www.accuweather.com": {
+    "statusBarColor": "#1f1f1f",
+    "loadingBarColor": "#1f1f1f",
+    "remove": [
+      ".adhesion-header",
+      ".glacier-ad.adhesion",
+      ".glacier-ad.top",
+      ".glacier-ad.middle",
+      ".glacier-ad.native",
+      "#adhesion",
+      "#top",
+      "#middle",
+      "#native"
+    ],
+    "injectCss": [
+      ".header-placeholder.has-adhesion { height: 50px !important; }"
+    ]
+  },
+
+  "www.paypal.com": {
+    "statusBarColor": "#00288d",
+    "loadingBarColor": "#00288d"
+  },
+
+  "ebay.co.uk": {
+    "statusBarColor": "#121212",
+    "bottomBarColor": "#121212",
+    "loadingBarColor": "#121212",
+    "remove": [
+      ".gadget-banner.bottom-of-page"
+    ]
+  },
+
+  "nhs.uk": {
+    "statusBarColor": "#005eb8",
+    "bottomBarColor": "#323638",
+    "loadingBarColor": "#005eb8"
+  },
+
+  "booking.com": {
+    "statusBarColor": "#003b95",
+    "bottomBarColor": "#003b95",
+    "loadingBarColor": "#003b95",
+    "remove": [
+      "div[data-testid=\"gta-header-banner-container-test\"]"
+    ]
+  },
+
+  "skyscanner.net": {
+    "statusBarColor": "#05203c",
+    "bottomBarColor": "#05203c",
+    "loadingBarColor": "#05203c"
+  },
+
+  "facebook.com": {
+    "statusBarColor": "#121212",
+    "bottomBarColor": "#121212",
+    "loadingBarColor": "#121212"
+  },
+
+  "hostelworld.com": {
+    "statusBarColor": "#121212",
+    "bottomBarColor": "#121212",
+    "loadingBarColor": "#121212",
+    "remove": [
+      ".app-banner-container"
+    ]
+  },
+
+  "rightmove.co.uk": {
+    "statusBarColor": "#121212",
+    "bottomBarColor": "#121212",
+    "loadingBarColor": "#121212",
+    "remove": [
+      "#xcfCSYW7JYqVzFrxfzQa"
+    ]
+  },
+
+  "aviva.co.uk": {
+    "statusBarColor": "#ffd900",
+    "loadingBarColor": "#ffd900"
+  },
+
+  "vinted.co.uk": {
+    "statusBarColor": "#121212",
+    "bottomBarColor": "#121212",
+    "loadingBarColor": "#121212",
+    "remove": [
+      "div[data-testid=\"app-banner-wrapper\"]"
+    ]
+  },
+
+  "www.artstation.com": {
+    "statusBarColor": "#101014",
+    "bottomBarColor": "#101014",
+    "loadingBarColor": "#101014"
+  },
+
+  "duck.ai": {
+    "statusBarColor": "#111111",
+    "bottomBarColor": "#111111",
+    "loadingBarColor": "#111111"
+  }
+}

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
+import com.cylonid.nativealpha.model.DataManager;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
@@ -17,6 +18,8 @@ public class App extends Application {
         super.onCreate();
 
         App.context = getApplicationContext();
+        DataManager.getInstance().loadAppData();
+        ThemeUtils.applyTheme();
        if(!WorkManager.isInitialized()) {
            WorkManager.initialize(this, new Configuration.Builder().build());
        }

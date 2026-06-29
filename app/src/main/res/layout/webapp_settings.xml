@@ -58,22 +58,23 @@
                         android:layout_marginBottom="@dimen/settings_bottom"
                         android:text="@string/re_create_shortcut" />
 
-                    <TextView
-                        android:id="@+id/labelWebAppName"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutWebAppName"
+                        style="@style/AppTheme.TextInputLayout.Rounded"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/label"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
-                    <EditText
-                        android:id="@+id/txtWebAppName"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
                         android:layout_marginBottom="@dimen/settings_bottom"
-                        android:autofillHints=""
-                        android:fontFamily="sans-serif"
-                        android:inputType="text"
-                        android:text="@={webapp.title}" />
+                        android:hint="@string/label">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/txtWebAppName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints=""
+                            android:fontFamily="sans-serif"
+                            android:inputType="text"
+                            android:text="@={webapp.title}" />
+                    </com.google.android.material.textfield.TextInputLayout>
                 <LinearLayout
                     android:id="@+id/sectionSandbox"
                     android:layout_width="match_parent"
@@ -417,29 +418,24 @@
                                 android:onCheckedChanged="@{(switch, checked) -> webapp.onSwitchAutoreloadChanged(switch, checked)}"
                                 android:text="@string/webapp_autoreload_switch" />
 
-                            <LinearLayout
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/layoutReloadInterval"
+                                style="@style/AppTheme.TextInputLayout.Rounded"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:visibility="visible">
+                                android:layout_marginBottom="16dp"
+                                android:hint="@string/webapp_interval_for_reload">
 
-                                <TextView
-                                    android:id="@+id/labelReloadInterval"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:enabled="@{webapp.autoreload}"
-                                    android:text="@string/webapp_interval_for_reload" />
-
-                                <EditText
+                                <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/textReloadInterval"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:enabled="@{webapp.autoreload}"
                                     android:fontFamily="sans-serif"
                                     android:inputType="number"
                                     android:text="@={`` + webapp.timeAutoreload}" />
 
-                            </LinearLayout>
+                            </com.google.android.material.textfield.TextInputLayout>
                         </LinearLayout>
                         <LinearLayout
                             android:id="@+id/sectionKioskMode"
@@ -531,9 +527,144 @@
 
                         </LinearLayout>
 
+
+                        <LinearLayout
+                            android:id="@+id/sectionSiteRules"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/settings_bottom"
+                            android:divider="@drawable/empty_10dp_vertical"
+                            android:orientation="vertical"
+                            android:showDividers="middle">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/remove_divider"
+                                android:text="@string/site_rules_config"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+                                <com.google.android.material.textfield.TextInputLayout
+                                    style="@style/AppTheme.TextInputLayout.Rounded"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:hint="@string/status_bar_color">
+                                    <com.google.android.material.textfield.TextInputEditText
+                                        android:id="@+id/editStatusBarColor"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="text" />
+                                </com.google.android.material.textfield.TextInputLayout>
+                                <View
+                                    android:id="@+id/viewStatusBarColorPreview"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:layout_marginStart="8dp"
+                                    android:background="@android:color/darker_gray"
+                                    android:foreground="@drawable/web_app_list_separator" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+                                <com.google.android.material.textfield.TextInputLayout
+                                    style="@style/AppTheme.TextInputLayout.Rounded"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:hint="@string/bottom_bar_color">
+                                    <com.google.android.material.textfield.TextInputEditText
+                                        android:id="@+id/editBottomBarColor"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="text" />
+                                </com.google.android.material.textfield.TextInputLayout>
+                                <View
+                                    android:id="@+id/viewBottomBarColorPreview"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:layout_marginStart="8dp"
+                                    android:background="@android:color/darker_gray"
+                                    android:foreground="@drawable/web_app_list_separator" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+                                <com.google.android.material.textfield.TextInputLayout
+                                    style="@style/AppTheme.TextInputLayout.Rounded"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:hint="@string/loading_bar_color">
+                                    <com.google.android.material.textfield.TextInputEditText
+                                        android:id="@+id/editLoadingBarColor"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="text" />
+                                </com.google.android.material.textfield.TextInputLayout>
+                                <View
+                                    android:id="@+id/viewLoadingBarColorPreview"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:layout_marginStart="8dp"
+                                    android:background="@android:color/darker_gray"
+                                    android:foreground="@drawable/web_app_list_separator" />
+                            </LinearLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/AppTheme.TextInputLayout.Rounded"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/dom_removal_selectors">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/editDomRemoval"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="top"
+                                    android:inputType="textMultiLine"
+                                    android:minLines="3" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/AppTheme.TextInputLayout.Rounded"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/inject_css_rules">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/editInjectCss"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="top"
+                                    android:inputType="textMultiLine"
+                                    android:minLines="3" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <Button
+                                android:id="@+id/btnResetSiteRules"
+                                style="@style/Widget.Material3.Button.TonalButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/reset_to_original" />
+                        </LinearLayout>
+
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
                             android:text="@string/expert_settings"
                             android:textAppearance="@style/TextAppearance.AppCompat.Small"
                             android:textStyle="bold" />
@@ -556,30 +687,22 @@
                             android:orientation="vertical"
                             android:showDividers="middle"
                             android:visibility="gone">
-                            <TextView
-                                android:id="@+id/labelEditableBaseUrl"
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/layoutBaseUrl"
+                                style="@style/AppTheme.TextInputLayout.Rounded"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="@dimen/remove_divider"
-                                android:text="@string/start_url"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                                android:textStyle="bold" />
-                            <EditText
-                                android:id="@+id/textBaseUrl"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
-                                android:inputType="textUri"
-                                android:text="@={webapp.baseUrl}"
-                                tools:ignore="UnusedAttribute" />
+                                android:layout_marginBottom="16dp"
+                                android:hint="@string/start_url">
 
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="@dimen/remove_divider"
-                                android:text="@string/user_agent"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                                android:textStyle="bold" />
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/textBaseUrl"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif"
+                                    android:inputType="textUri"
+                                    android:text="@={webapp.baseUrl}" />
+                            </com.google.android.material.textfield.TextInputLayout>
 
                             <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/switchUserAgent"
@@ -592,25 +715,26 @@
                             <TextView
                                 android:id="@+id/txthintUserAgent"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp" />
 
-                            <LinearLayout
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/layoutUserAgent"
+                                style="@style/AppTheme.TextInputLayout.Rounded"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:visibility="visible">
+                                android:layout_marginBottom="16dp"
+                                android:enabled="@{webapp.useCustomUserAgent}"
+                                android:hint="@string/user_agent">
 
-                                <EditText
+                                <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/textUserAgent"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="sans-serif"
-                                    android:hint="@string/insert_custom_user_agent"
                                     android:inputType="text"
-                                    android:text="@={webapp.userAgent}"
-                                    tools:ignore="UnusedAttribute" />
-
-                            </LinearLayout>
+                                    android:text="@={webapp.userAgent}" />
+                            </com.google.android.material.textfield.TextInputLayout>
 
                             <LinearLayout
                                 android:id="@+id/sectionSSL"

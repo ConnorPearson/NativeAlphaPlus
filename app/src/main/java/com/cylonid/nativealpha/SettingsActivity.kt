@@ -10,12 +10,14 @@ import android.webkit.WebStorage
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.cylonid.nativealpha.activities.AdblockConfigActivity
+import com.cylonid.nativealpha.activities.JsonEditorActivity
 import com.cylonid.nativealpha.activities.ToolbarBaseActivity
 import com.cylonid.nativealpha.databinding.GlobalSettingsBinding
 import com.cylonid.nativealpha.model.DataManager
 import com.cylonid.nativealpha.model.GlobalSettings
 import com.cylonid.nativealpha.util.Const
 import com.cylonid.nativealpha.util.NotificationUtils
+import com.cylonid.nativealpha.util.ThemeUtils
 import com.cylonid.nativealpha.util.Utility
 import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
@@ -51,6 +53,11 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
                 settings.globalWebApp.ID
             )
             intent.setAction(Intent.ACTION_VIEW)
+            startActivity(intent)
+        }
+
+        binding.btnEditSiteRules.setOnClickListener { v: View? ->
+            val intent = Intent(this, JsonEditorActivity::class.java)
             startActivity(intent)
         }
 
@@ -93,13 +100,17 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         }
 
         binding.btnSave.setOnClickListener {
+            modified_settings.themeId = binding.dropDownTheme.selectedItemPosition
             DataManager.getInstance().settings = modified_settings
+            ThemeUtils.applyTheme()
             finish()
         }
 
         binding.btnCancel.setOnClickListener {
             finish()
         }
+
+        binding.dropDownTheme.setSelection(modified_settings.themeId)
     }
 
     override fun inflateBinding(layoutInflater: LayoutInflater): GlobalSettingsBinding {

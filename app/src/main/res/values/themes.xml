@@ -16,12 +16,12 @@
         <item name="colorOnError">@color/md_theme_onError</item>
         <item name="colorErrorContainer">@color/md_theme_errorContainer</item>
         <item name="colorOnErrorContainer">@color/md_theme_onErrorContainer</item>
-        <item name="android:colorBackground">@color/md_theme_background</item>
-        <item name="colorOnBackground">@color/md_theme_onBackground</item>
-        <item name="colorSurface">@color/md_theme_surface</item>
-        <item name="colorOnSurface">@color/md_theme_onSurface</item>
-        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
-        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
+        <item name="android:colorBackground">@color/pure_white</item>
+        <item name="colorOnBackground">@color/pure_black</item>
+        <item name="colorSurface">@color/pure_white</item>
+        <item name="colorOnSurface">@color/pure_black</item>
+        <item name="colorSurfaceVariant">@color/pure_white</item>
+        <item name="colorOnSurfaceVariant">@color/pure_black</item>
         <item name="colorOutline">@color/md_theme_outline</item>
         <item name="colorOutlineVariant">@color/md_theme_outlineVariant</item>
         <item name="colorSurfaceInverse">@color/md_theme_inverseSurface</item>
@@ -39,15 +39,46 @@
         <item name="colorOnTertiaryFixed">@color/md_theme_onTertiaryFixed</item>
         <item name="colorTertiaryFixedDim">@color/md_theme_tertiaryFixedDim</item>
         <item name="colorOnTertiaryFixedVariant">@color/md_theme_onTertiaryFixedVariant</item>
-        <item name="colorSurfaceDim">@color/md_theme_surfaceDim</item>
-        <item name="colorSurfaceBright">@color/md_theme_surfaceBright</item>
-        <item name="colorSurfaceContainerLowest">@color/md_theme_surfaceContainerLowest</item>
-        <item name="colorSurfaceContainerLow">@color/md_theme_surfaceContainerLow</item>
-        <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
-        <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
-        <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
+        <item name="colorSurfaceDim">#FFFFFF</item>
+        <item name="colorSurfaceBright">#FFFFFF</item>
+        <item name="colorSurfaceContainerLowest">#FFFFFF</item>
+        <item name="colorSurfaceContainerLow">@color/light_grey_surface</item>
+        <item name="colorSurfaceContainer">@color/light_grey_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/light_grey_surface</item>
+        <item name="colorSurfaceContainerHighest">@color/light_grey_surface</item>
         <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
-        <item name="android:statusBarColor">@color/colorSignatureDark</item>
+        <item name="android:statusBarColor">@color/pure_white</item>
+        <item name="android:navigationBarColor">@color/pure_white</item>
+        <item name="materialAlertDialogTheme">@style/AppTheme.AlertDialog</item>
+        <item name="actionOverflowMenuStyle">@style/AppTheme.OverflowMenu</item>
+        <item name="popupMenuStyle">@style/AppTheme.PopupMenu</item>
+    </style>
+
+    <style name="AppTheme.OverflowMenu" parent="Widget.Material3.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/bg_popup_rounded</item>
+    </style>
+
+    <style name="AppTheme.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup_rounded</item>
+    </style>
+
+    <style name="AppTheme.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Dialog</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.Dialog</item>
+    </style>
+
+    <style name="ShapeAppearance.App.Dialog" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="AppTheme.TextInputLayout.Rounded" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceContainerLow</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
     </style>
 
     <style name="AppTheme.Launcher">
@@ -55,7 +86,7 @@
     </style>
 
     <style name="AppTheme.WebView">
-        <item name="android:statusBarColor">#373737</item>
+        <item name="android:statusBarColor">@color/pure_white</item>
     </style>
 
 

@@ -4,8 +4,8 @@
     android:id="@+id/topAppBar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorSignature"
+    android:background="?attr/colorSurface"
     android:theme="@style/ThemeOverlay.Material3.ActionBar"
-    app:titleTextColor="@android:color/white"
-    app:navigationIconTint="@android:color/white"
+    app:titleTextColor="?attr/colorOnSurface"
+    app:navigationIconTint="?attr/colorOnSurface"
     app:navigationIcon="@drawable/ic_baseline_arrow_back_24"/>

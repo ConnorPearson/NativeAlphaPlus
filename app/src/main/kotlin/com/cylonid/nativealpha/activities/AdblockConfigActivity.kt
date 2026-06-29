@@ -18,6 +18,7 @@ import com.cylonid.nativealpha.model.DataManager
 import com.cylonid.nativealpha.util.Const
 import com.cylonid.nativealpha.util.NotificationUtils
 import com.cylonid.nativealpha.util.ProcessUtils
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
 class AdblockConfigActivity : ToolbarBaseActivity<AdblockConfigActivityBinding>() {
@@ -53,7 +54,7 @@ class AdblockConfigActivity : ToolbarBaseActivity<AdblockConfigActivityBinding>(
 
     private fun showAddAdblockDialog() {
         val localBinding = AddAdblockConfigDialogBinding.inflate(layoutInflater)
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this, R.style.AppTheme_AlertDialog)
             .setView(localBinding.root)
             .setTitle(getString(R.string.add_a_new_adblock_provider))
             .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->

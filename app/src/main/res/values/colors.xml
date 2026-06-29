@@ -1,12 +1,12 @@
 <resources>
-    <color name="md_theme_primary">#904A43</color>
+    <color name="md_theme_primary">#B71C1C</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
     <color name="md_theme_primaryContainer">#FFDAD6</color>
-    <color name="md_theme_onPrimaryContainer">#73332D</color>
+    <color name="md_theme_onPrimaryContainer">#410002</color>
     <color name="md_theme_secondary">#775652</color>
     <color name="md_theme_onSecondary">#FFFFFF</color>
     <color name="md_theme_secondaryContainer">#FFDAD6</color>
-    <color name="md_theme_onSecondaryContainer">#5D3F3C</color>
+    <color name="md_theme_onSecondaryContainer">#2C1513</color>
     <color name="md_theme_tertiary">#715B2E</color>
     <color name="md_theme_onTertiary">#FFFFFF</color>
     <color name="md_theme_tertiaryContainer">#FDDFA6</color>
@@ -154,4 +154,11 @@
     <color name="swipe_action_positive">#4DFF53</color>
     <color name="swipe_action_neutral">#EF6C00</color>
     <color name="swipe_action_negative">#FD2C2C</color>
+
+    <color name="amoled_black">#000000</color>
+    <color name="pure_black">#000000</color>
+    <color name="pure_white">#FFFFFF</color>
+    <color name="material_orange">#FF9800</color>
+    <color name="dark_grey_surface">#1E1E1E</color>
+    <color name="light_grey_surface">#F5F5F5</color>
 </resources>

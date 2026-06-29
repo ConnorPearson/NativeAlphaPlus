@@ -11,6 +11,7 @@ import com.cylonid.nativealpha.helper.BiometricPromptHelper
 import com.cylonid.nativealpha.util.Const
 import com.cylonid.nativealpha.util.ShortcutIconUtils
 import com.cylonid.nativealpha.util.Utility
+import com.google.android.material.textfield.TextInputLayout
 import java.util.*
 
 data class AdblockConfig(val label: String, val value: String)
@@ -27,6 +28,7 @@ data class WebApp(var baseUrl: String, val ID: Int) {
     var isAllowJs = true
     var isRequestDesktop = false
     var isClearCache = false
+    var isUseProfile = true
     var isUseAdblock = false
     var isSendSavedataRequest = false
     var isBlockImages = false
@@ -270,10 +272,8 @@ data class WebApp(var baseUrl: String, val ID: Int) {
     }
 
     fun onSwitchAutoreloadChanged(mSwitch: CompoundButton, isChecked: Boolean) {
-        val text = mSwitch.rootView.findViewById<EditText>(R.id.textReloadInterval)
-        val label = mSwitch.rootView.findViewById<TextView>(R.id.labelReloadInterval)
-        text.isEnabled = isChecked
-        label.isEnabled = isChecked
+        val layout = mSwitch.rootView.findViewById<TextInputLayout>(R.id.layoutReloadInterval)
+        layout?.isEnabled = isChecked
     }
 
     fun onSwitchExpertSettingsChanged(mSwitch: CompoundButton, isChecked: Boolean) {

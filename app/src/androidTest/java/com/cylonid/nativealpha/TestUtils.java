@@ -32,13 +32,18 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.web.sugar.Web.onWebView;
+import static androidx.test.espresso.web.webdriver.DriverAtoms.findElement;
+import static androidx.test.espresso.web.webdriver.DriverAtoms.webClick;
 import static org.hamcrest.Matchers.any;
+
+import androidx.test.espresso.web.webdriver.Locator;
 
 public class TestUtils {
 
 
     public static void acceptLicense() {
-        onView(withId(R.id.btnNewsConfirm)).perform(click());
+        onWebView().withElement(findElement(Locator.XPATH, "//button[text()='OK']")).perform(webClick());
     }
     public static void alertDialogAccept() {
         onView(withId(android.R.id.button1)).perform(click());
