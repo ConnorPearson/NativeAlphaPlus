@@ -15,7 +15,7 @@
 * Navigation with multi-touch gestures while browsing.
 * Opt-in ad blocking with user-selected filter lists.
 * DOM and CSS modifications for an improved mobile browsing experience.
-* Automatically removes "Get our app" banners and similar promotional components on supported sites.
+* Manually removes "Get our app" banners and similar promotional components on supported sites.
 * **[Experimental]** Background playback for YouTube.
 * Modifiable JSON configuration for custom DOM and CSS modifications.
 * Custom header and footer app colors on a per-site basis.
