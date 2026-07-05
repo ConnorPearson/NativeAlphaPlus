@@ -2,7 +2,6 @@ package com.cylonid.nativealpha;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -11,12 +10,12 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -59,6 +58,8 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -92,13 +93,6 @@ import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -106,11 +100,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -144,6 +135,16 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private String urlOnFirstPageload = "";
     private boolean fallbackToDefaultLongClickBehaviour = false;
     private PopupMenu mPopupMenu = null;
+
+    private final ActivityResultLauncher<Intent> fileChooserLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (filePathCallback != null) {
+                    filePathCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result.getResultCode(), result.getData()));
+                    filePathCallback = null;
+                }
+            }
+    );
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -225,7 +226,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         EntryPointUtils.entryPointReached(this);
         
         if (webapp.isBiometricProtection()) {
-            new BiometricPromptHelper(this).showPrompt(() -> setupWebView(), () -> finish(), getString(R.string.bioprompt_restricted_webapp));
+            new BiometricPromptHelper(this).showPrompt(this::setupWebView, this::finish, getString(R.string.bioprompt_restricted_webapp));
         } else {
             setupWebView();
         }
@@ -249,30 +250,23 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             }
             
             AudioManager am = (AudioManager) getSystemService(AUDIO_SERVICE);
-            AudioManager.OnAudioFocusChangeListener focusChangeListener = focusChange -> {
-                Log.d("NativeAlpha", "Audio focus changed: " + focusChange);
-            };
+            AudioManager.OnAudioFocusChangeListener focusChangeListener = focusChange -> Log.d("NativeAlpha", "Audio focus changed: " + focusChange);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                AudioFocusRequest afr = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                        .setAudioAttributes(new AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_MEDIA)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .build())
-                        .setWillPauseWhenDucked(true)
-                        .setOnAudioFocusChangeListener(focusChangeListener)
-                        .build();
-                am.requestAudioFocus(afr);
-            } else {
-                am.requestAudioFocus(focusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-            }
+            AudioFocusRequest afr = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                    .setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build())
+                    .setWillPauseWhenDucked(true)
+                    .setOnAudioFocusChangeListener(focusChangeListener)
+                    .build();
+            am.requestAudioFocus(afr);
 
             mediaSession = new MediaSession(this, "NativeAlphaMedia");
-            mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
             
             MediaMetadata metadata = new MediaMetadata.Builder()
                     .putString(MediaMetadata.METADATA_KEY_TITLE, webapp.getTitle())
-                    .putString(MediaMetadata.METADATA_KEY_ARTIST, "Native Alpha")
+                    .putString(MediaMetadata.METADATA_KEY_ARTIST, "Native Alpha++")
                     .build();
             mediaSession.setMetadata(metadata);
             
@@ -314,11 +308,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 IntentFilter filter = new IntentFilter();
                 filter.addAction("com.cylonid.nativealpha.ACTION_PLAY");
                 filter.addAction("com.cylonid.nativealpha.ACTION_PAUSE");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    registerReceiver(mediaReceiver, filter, Context.RECEIVER_EXPORTED);
-                } else {
-                    registerReceiver(mediaReceiver, filter);
-                }
+                ContextCompat.registerReceiver(this, mediaReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
             }
         }
     }
@@ -369,13 +359,13 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             if (site != null && site.has("userAgent")) {
                 wv.getSettings().setUserAgentString(site.getString("userAgent"));
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            Log.e("NativeAlpha", "Error setting user agent from site config", e);
+        }
 
         if (webapp.isAllowMediaPlaybackInBackground()) {
             wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                wv.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_BOUND, false);
-            }
+            wv.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_BOUND, false);
         }
 
         CookieManager.getInstance().setAcceptCookie(webapp.isAllowCookies());
@@ -422,18 +412,29 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 startActivity(i);
             } else {
                 if(dl_url != null && !dl_url.isEmpty()) {
+                    String final_dl_url;
                     if(dl_url.startsWith("blob:")) {
-                        dl_url = dl_url.replace("blob:", "");
+                        String rawBlob = dl_url.replace("blob:", "");
+                        String decodedValue;
                         try {
-                            dl_url = URLDecoder.decode(dl_url, "UTF-8");
-                        } catch (UnsupportedEncodingException ignored) {}
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                decodedValue = URLDecoder.decode(rawBlob, StandardCharsets.UTF_8);
+                            } else {
+                                //noinspection deprecation
+                                decodedValue = URLDecoder.decode(rawBlob, "UTF-8");
+                            }
+                        } catch (Exception ignored) {
+                            decodedValue = rawBlob;
+                        }
+                        final_dl_url = decodedValue;
+                    } else {
+                        final_dl_url = dl_url;
                     }
-                    DownloadManager.Request request = null;
                     try {
-                        request = new DownloadManager.Request(Uri.parse(dl_url));
-                        String file_name = Utility.getFileNameFromDownload(dl_url, contentDisposition, mimeType);
+                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(final_dl_url));
+                        String file_name = Utility.getFileNameFromDownload(final_dl_url, contentDisposition, mimeType);
                         request.setMimeType(mimeType);
-                        request.addRequestHeader("cookie", CookieManager.getInstance().getCookie(dl_url));
+                        request.addRequestHeader("cookie", CookieManager.getInstance().getCookie(final_dl_url));
                         request.addRequestHeader("User-Agent", userAgent);
                         request.setTitle(file_name);
                         request.allowScanningByMediaScanner();
@@ -464,6 +465,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         wv.setOnTouchListener(new View.OnTouchListener() {
             private int mode = NONE;
             private float startX, stopX, startY, stopY;
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (webapp != null && webapp.isRequestDesktop()) return false;
@@ -516,38 +518,41 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         try {
             JSONObject site = SiteConfigManager.INSTANCE.getSiteConfig(this, url);
             if (site == null) return;
-            String statusBar = site.optString("statusBarColor", null);
-            String bottomBar = site.optString("bottomBarColor", null);
-            String loadingBar = site.optString("loadingBarColor", null);
+            String statusBar = site.optString("statusBarColor", "");
+            String bottomBar = site.optString("bottomBarColor", "");
+            String loadingBar = site.optString("loadingBarColor", "");
             Window window = getWindow();
             WindowInsetsControllerCompat windowInsetsController = new WindowInsetsControllerCompat(window, window.getDecorView());
-            if (statusBar != null && !statusBar.isEmpty()) {
+            if (!statusBar.isEmpty()) {
                 int color = Color.parseColor(statusBar);
                 window.setStatusBarColor(color);
                 windowInsetsController.setAppearanceLightStatusBars(ColorUtils.calculateLuminance(color) > 0.5);
             }
-            if (bottomBar != null && !bottomBar.isEmpty()) {
+            if (!bottomBar.isEmpty()) {
                 int color = Color.parseColor(bottomBar);
                 window.setNavigationBarColor(color);
                 windowInsetsController.setAppearanceLightNavigationBars(ColorUtils.calculateLuminance(color) > 0.5);
             }
-            if (loadingBar != null && !loadingBar.isEmpty() && progressBar != null) {
+            if (!loadingBar.isEmpty() && progressBar != null) {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor(loadingBar)));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("NativeAlpha", "applySiteSystemBars error", e);
         }
     }
 
-    @SuppressLint("RequiresFeature")
+    @SuppressLint({"RequiresFeature", "deprecation"})
     private void setDarkModeIfNeeded() {
         if (webapp == null || wv == null) return;
-        boolean needsForcedDarkMode = webapp.isUseTimespanDarkMode() &&
-                DateUtils.isInInterval(DateUtils.convertStringToCalendar(webapp.getTimespanDarkModeBegin()), Calendar.getInstance(), DateUtils.convertStringToCalendar(webapp.getTimespanDarkModeEnd()))
+        
+        Calendar begin = DateUtils.convertStringToCalendar(webapp.getTimespanDarkModeBegin());
+        Calendar end = DateUtils.convertStringToCalendar(webapp.getTimespanDarkModeEnd());
+        
+        boolean needsForcedDarkMode = webapp.isUseTimespanDarkMode() && begin != null && end != null &&
+                DateUtils.isInInterval(begin, Calendar.getInstance(), end)
                 || (!webapp.isUseTimespanDarkMode() && webapp.isForceDarkMode());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            boolean isForceDarkSupported = WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK);
             boolean isForceDarkStrategySupported = WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY);
             boolean isAlgorithmicDarkeningSupported = WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING);
 
@@ -556,7 +561,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     wv.getSettings().setAlgorithmicDarkeningAllowed(true);
-                } else if (isForceDarkSupported) {
+                } else if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
                     WebSettingsCompat.setForceDark(wv.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
                 }
                 if (isForceDarkStrategySupported) {
@@ -569,7 +574,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     wv.getSettings().setAlgorithmicDarkeningAllowed(false);
-                } else if (isForceDarkSupported) {
+                } else if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
                     WebSettingsCompat.setForceDark(wv.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
                 }
                 if (isForceDarkStrategySupported) {
@@ -601,7 +606,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             item.setTitle(spanString);
         }
         if(wv.canGoForward()) mPopupMenu.getMenu().getItem(2).setVisible(true);
-        if(BuildConfig.DEBUG) mPopupMenu.getMenu().getItem(6).setVisible(true);
+        if((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) mPopupMenu.getMenu().getItem(6).setVisible(true);
         mPopupMenu.setOnMenuItemClickListener(menuItem -> {
             int id = menuItem.getItemId();
             if (id == R.id.cmItemForward) { wv.goForward(); return true; }
@@ -653,12 +658,12 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         MediaKeepAliveService.stop(this);
         bg_keepalive_handler.removeCallbacks(bg_keepalive_runnable);
         this.setDarkModeIfNeeded();
-        if(webapp != null && webapp.isBiometricProtection()) {
+        if (webapp.isBiometricProtection()) {
             View fullActivityView = findViewById(R.id.webviewActivity);
             if (fullActivityView != null) fullActivityView.setVisibility(View.GONE);
             new BiometricPromptHelper(this).showPrompt(() -> {
                  if (fullActivityView != null) fullActivityView.setVisibility(View.VISIBLE);
-            }, () -> finish(), getString(R.string.bioprompt_restricted_webapp));
+            }, this::finish, getString(R.string.bioprompt_restricted_webapp));
         }
         if (webapp != null && webapp.isAutoreload()) {
             reload_handler = new Handler();
@@ -666,26 +671,27 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }
     }
 
-    private Handler bg_keepalive_handler = new Handler();
+    private final Handler bg_keepalive_handler = new Handler();
     private int bg_burst_count = 0;
-    private Runnable bg_keepalive_runnable = new Runnable() {
+    private final Runnable bg_keepalive_runnable = new Runnable() {
         @Override
         public void run() {
             if (wv != null && webapp != null && webapp.isAllowMediaPlaybackInBackground()) {
                 if (userWantsPlaying) {
-                    wv.evaluateJavascript("(function() { \n" +
-                            "  window._naUserWantsPlaying = true;\n" +
-                            "  if (typeof syncState === 'function') syncState();\n" +
-                            "  function wakeMedia(root) {\n" +
-                            "    root.querySelectorAll('video, audio').forEach(function(m) {\n" +
-                            "      if (m.paused && !m.ended && m.readyState > 0) m.play().catch(() => {});\n" +
-                            "      if (m.tagName === 'VIDEO' && m.style.display === 'none') m.style.display = 'block';\n" +
-                            "    });\n" +
-                            "    var all = root.querySelectorAll('*');\n" +
-                            "    for (var i = 0; i < all.length; i++) if (all[i].shadowRoot) wakeMedia(all[i].shadowRoot);\n" +
-                            "  }\n" +
-                            "  wakeMedia(document);\n" +
-                            "})();", null);
+                    wv.evaluateJavascript("""
+            (function() {
+              window._naUserWantsPlaying = true;
+              if (typeof syncState === 'function') syncState();
+              function wakeMedia(root) {
+                root.querySelectorAll('video, audio').forEach(function(m) {
+                  if (m.paused && !m.ended && m.readyState > 0) m.play().catch(() => {});
+                  if (m.tagName === 'VIDEO' && m.style.display === 'none') m.style.display = 'block';
+                });
+                var all = root.querySelectorAll('*');
+                for (var i = 0; i < all.length; i++) if (all[i].shadowRoot) wakeMedia(all[i].shadowRoot);
+              }
+              wakeMedia(document);
+            })();""", null);
                 }
                 if (bg_burst_count > 0) { bg_burst_count--; bg_keepalive_handler.postDelayed(this, 1000); }
                 else bg_keepalive_handler.postDelayed(this, 30000);
@@ -741,7 +747,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }, webapp.getTimeAutoreload() * 1000L);
     }
 
-    public WebView getWebView() { return wv; }
+    // public WebView getWebView() { return wv; }
 
     private Map<String, String> initCustomHeaders(boolean save_data) {
         Map<String, String> extraHeaders = new HashMap<>();
@@ -871,7 +877,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> pFilePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
             filePathCallback = pFilePathCallback;
-            try { startActivityForResult(fileChooserParams.createIntent(), CODE_OPEN_FILE); }
+            try { fileChooserLauncher.launch(fileChooserParams.createIntent()); }
             catch (Exception e) { NotificationUtils.showInfoSnackbar(WebViewActivity.this, getString(R.string.no_filemanager), Snackbar.LENGTH_LONG); }
             return true;
         }
@@ -1013,7 +1019,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                     "    window._naUserWantsPlaying = isPlaying;" +
                     "    if (window.NativeAlpha) window.NativeAlpha.setPlaybackState(isPlaying);" +
                     "  }" +
-                    "  var title = document.title.replace(' - YouTube', ''); var artist = 'Native Alpha';" +
+                    "  var title = document.title.replace(' - YouTube', ''); var artist = 'Native Alpha++';" +
                     "  if (location.hostname.includes('youtube.com')) {" +
                     "    artist = 'YouTube'; var channel = document.querySelector('#upload-info .ytd-channel-name a, .ytp-ce-channel-title, [itemprop=\"author\"] [itemprop=\"name\"]');" +
                     "    if (channel) artist = channel.innerText || channel.content;" +
@@ -1038,7 +1044,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             }
             JSONArray css = site.optJSONArray("injectCss");
             if (css != null) for (int j = 0; j < css.length(); j++) cssToInject.append(css.getString(j));
-            if (cssToInject.length() > 0) {
+            if (!cssToInject.toString().isEmpty()) {
                 String js = "(function() { var style = document.getElementById('na-site-rules') || document.createElement('style'); style.id = 'na-site-rules'; style.textContent = " + JSONObject.quote(cssToInject.toString()) + "; var parent = document.head || document.documentElement; if (parent && !style.parentElement) parent.appendChild(style); })();";
                 view.evaluateJavascript(js, null);
             }
@@ -1048,7 +1054,9 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 removeJs.append("})();");
                 view.evaluateJavascript(removeJs.toString(), null);
             }
-        } catch (Exception e) { Log.e("NativeAlpha", "applySiteRules error", e); }
+        } catch (Exception e) {
+            Log.e("NativeAlpha", "applySiteRules error", e);
+        }
     }
 
     private class CustomBrowser extends WebViewClient {
@@ -1081,10 +1089,12 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             if (webapp != null && webapp.isBlockThirdPartyRequests()) {
                 Uri uri = request.getUrl();
                 Uri webapp_uri = Uri.parse(webapp.getBaseUrl());
-                if(uri.getHost() != null && !uri.getHost().endsWith(webapp_uri.getHost())) return new WebResourceResponse("text/plain", "utf-8", null);
+                String webappHost = webapp_uri.getHost();
+                if(uri.getHost() != null && webappHost != null && !uri.getHost().endsWith(webappHost)) return new WebResourceResponse("text/plain", "utf-8", null);
             }
             return super.shouldInterceptRequest(view, request);
         }
+        @SuppressLint("WebViewClientOnReceivedSslError")
         @Override public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             if (webapp != null && webapp.isIgnoreSslErrors()) { handler.proceed(); return; }
             String msg = getString(R.string.ssl_error_msg_line1) + " ";
@@ -1106,7 +1116,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             view.evaluateJavascript("document.addEventListener('visibilitychange', (e) => { e.stopImmediatePropagation(); }, true);", null);
         }
         @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-            runOnUiThread(() -> setDarkModeIfNeeded());
+            runOnUiThread(WebViewActivity.this::setDarkModeIfNeeded);
             String url = request.getUrl().toString();
             if (url.startsWith("tel:")) { startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse(url))); return true; }
             if (url.startsWith("mailto:")) { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); return true; }

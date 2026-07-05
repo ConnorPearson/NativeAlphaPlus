@@ -20,21 +20,21 @@ android {
             universalApk true
         }
     }
-    flavorDimensions "default"
+    flavorDimensions += ["default"]
     productFlavors {
         extended {
             dimension "default"
             applicationIdSuffix ".pro"
-            resValue "string", "app_name", "Native Alpha +"
+            resValue "string", "app_name", "Native Alpha++"
         }
         extendedGithub {
             dimension "default"
-            resValue "string", "app_name", "Native Alpha"
+            resValue "string", "app_name", "Native Alpha++"
         }
         standard {
             dimension "default"
             isDefault true
-            resValue "string", "app_name", "Native Alpha"
+            resValue "string", "app_name", "Native Alpha++"
         }
     }
 
@@ -62,7 +62,7 @@ android {
         }
         debug {
           applicationIdSuffix = ".debug"
-          resValue "string", "app_name", "_DEBUG-Native Alpha"
+          resValue "string", "app_name", "_DEBUG-Native Alpha++"
         }
         applicationVariants.all {
                 // this method is use to rename your release apk only
@@ -71,7 +71,7 @@ android {
                         // on below line we are setting a name to our apk
                     output ->
                         // on below line we are specifying our app name.
-                        project.ext { appName = 'NativeAlpha' }
+                        project.ext { appName = 'NativeAlphaPlus' }
                         // on below line we are adding the formatted date to our apk file name.
                         def formattedDate = new Date().format('yyyy-MM-dd-HH-mm-ss')
                         // on below line we are creating a new name for our apk.
@@ -109,14 +109,14 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'com.mikhaellopez:circularprogressbar:3.1.0'
-    implementation 'org.jsoup:jsoup:1.14.1'
+    implementation 'org.jsoup:jsoup:1.18.1'
     implementation 'com.github.ihimanshurawat:Hasher:1.2'
     implementation 'androidx.navigation:navigation-fragment:2.8.9'
     implementation 'androidx.navigation:navigation-ui:2.8.9'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'io.github.medyo:android-about-page:2.0.0'
     implementation 'androidx.webkit:webkit:1.13.0'
-    implementation 'com.jakewharton:process-phoenix:2.1.2'
+    implementation 'com.jakewharton:process-phoenix:3.0.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.robolectric:robolectric:4.14.1'
     testImplementation 'org.json:json:20250107'
@@ -134,7 +134,7 @@ dependencies {
     implementation "com.mikepenz:aboutlibraries:11.6.3"
     implementation "com.mikepenz:aboutlibraries-core:11.6.3"
     implementation 'pub.devrel:easypermissions:3.0.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
     implementation "androidx.biometric:biometric:1.1.0"
     implementation 'com.ernestoyaquello.dragdropswiperecyclerview:drag-drop-swipe-recyclerview:1.2.0'
     implementation "androidx.fragment:fragment-ktx:1.8.6"
@@ -143,7 +143,6 @@ dependencies {
     }
     implementation 'androidx.work:work-runtime:2.10.0'
     implementation 'androidx.media:media:1.8.0'
-    kapt "com.android.databinding:compiler:3.1.4"
     implementation 'com.google.android.material:material:1.12.0'
 
 
@@ -153,7 +152,7 @@ def NUM_OF_CONTAINERS = 8
 (0..<NUM_OF_CONTAINERS).each { int i ->
     TaskProvider<Copy> trTask = tasks.register("createWebViewclass${i}", Copy) {
         from 'src/main/java/com/cylonid/nativealpha/WebViewActivity.java'
-        into "src/main/java/com/cylonid/nativealpha/__WebViewActivity_${i}"
+        into "src/main/java/com/cylonid/nativealpha"
         mustRunAfter(i == 0 ? [] : tasks.getByName("createWebViewclass${i-1}"))
 
         filter { String line ->

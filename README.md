@@ -1,5 +1,5 @@
 
-# <img src="graphics/logo.png" width="50px" alt=""></img> Native Alpha
+# <img src="graphics/logo.png" width="50px" alt=""></img> Native Alpha++
 ![OS](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white&style=plastic)
 ![OS](https://img.shields.io/badge/MinVersion-9.0-red)
 ![SDK](https://img.shields.io/badge/SDK-35-yellowgreen)
@@ -33,7 +33,7 @@ The latest version is available in the [GitHub Releases](https://github.com/cylo
 
 ## Paid Features
 
-__Note: From v1.5.0, the GitHub and IzzyOnDroid release is functionally equivalent to Native Alpha Plus.__
+__Note: From v1.5.0, the GitHub and IzzyOnDroid release is functionally equivalent to Native Alpha++.__
 
   * Sandbox containers: Web Apps are loaded in fully separated sandboxes, cookies or other data are not shared with other Web Apps
   * Kiosk Mode: Fullscreen with menubars hidden
@@ -55,7 +55,7 @@ __Note: From v1.5.0, the GitHub and IzzyOnDroid release is functionally equivale
 * Fixed crashes when opening pop up menu
 * Information dialog regarding adblock-related crashes
 
-### Native Alpha Plus
+### Native Alpha++
 
 * Biometric Access Protection: For every Web App, you can enable access protection (Fingerprint + fallback to lockscreen PIN)
 * Further enhancements for Dark Mode
@@ -69,11 +69,11 @@ A: Mobile browsers usually only are able to create shortcuts which give a native
 
 <details> 
 <summary><i> Q: Can I keep multiple log-in sessions of the same website? </i></summary>
-A: Yes, this is possible using the sandbox feature of Native Alpha Plus.
+A: Yes, this is possible using the sandbox feature of Native Alpha++.
 </details>
 
 <details> 
-<summary><i> Q: Why isn't the sandbox feature in Native Alpha Plus enabled by default? </i></summary>
+<summary><i> Q: Why isn't the sandbox feature in Native Alpha++ enabled by default? </i></summary>
 A: The sandboxing approach is recommended for specific usage rather than general usage because it can limit the performance of the application and increase the disk usage. Therefore, use it for privacy-invasive websites or websites where you want to be logged in twice, but not for any website just because you can.
 </details>
 
@@ -89,16 +89,16 @@ A: This problem can occur due to multiple reasons. In most cases, the website do
 
 <details>
 <summary><i> Q: In constrast to your promise, this app has a large memory footprint! </i></summary>
-A: This is because Native Alpha makes use of caching in the same way your browser app does, i.e., it saves web content locally on your device. Then it can be loaded faster if you visit the same page again. You can either delete cache regularly yourself or set the "Clear cache after usage" setting in the global settings if memory footprint is a concern for you. However, then websites will take a longer time to load because everything has to be loaded from net.
+A: This is because Native Alpha++ makes use of caching in the same way your browser app does, i.e., it saves web content locally on your device. Then it can be loaded faster if you visit the same page again. You can either delete cache regularly yourself or set the "Clear cache after usage" setting in the global settings if memory footprint is a concern for you. However, then websites will take a longer time to load because everything has to be loaded from net.
 </details>
 
 <details>
-<summary><i> Q: What is the minimum Android version for running Native Alpha? </i></summary>
+<summary><i> Q: What is the minimum Android version for running Native Alpha++? </i></summary>
 A: Android 9 and newer are supported.
 </details>
 
 <details>
-<summary><i> Q: I don't want to use Google Play services, is there any other way to obtain Native Alpha Plus? </i></summary>
+<summary><i> Q: I don't want to use Google Play services, is there any other way to obtain Native Alpha++? </i></summary>
 A: You can build the app yourself, everything is open-source including the paid features. Also, the GitHub release includes the Pro features.
 </details>
 
@@ -120,7 +120,7 @@ A list of used open-source libraries can also be found inside the app ("About" s
 
 
 ## License
-Native Alpha is Free Software: You can use, study share and improve it at your
+Native Alpha++ is Free Software: You can use, study share and improve it at your
 will. Specifically you can redistribute and/or modify it under the terms of the
 [GNU General Public License](https://www.gnu.org/licenses/gpl.html) as
 published by the Free Software Foundation, either version 3 of the License, or

@@ -1,11 +1,11 @@
 package com.cylonid.nativealpha
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import com.cylonid.nativealpha.databinding.ActivityToolbarBaseBinding
 import com.cylonid.nativealpha.util.ColorUtils.getColorResFromThemeAttr
 import com.mikepenz.aboutlibraries.LibsBuilder
@@ -42,7 +42,7 @@ class AboutActivity : AppCompatActivity() {
         val page = AboutPage(this).apply {
             setDescription(
                 """
-                Native Alpha for Android
+                Native Alpha++
                 by cylonid © ${Year.now().value}
                 """.trimIndent()
             )
@@ -87,7 +87,7 @@ class AboutActivity : AppCompatActivity() {
         val intent = Intent()
         intent.setAction(Intent.ACTION_VIEW)
         intent.addCategory(Intent.CATEGORY_BROWSABLE)
-        intent.setData(Uri.parse(String.format("https://github.com/%s", id)))
+        intent.setData("https://github.com/$id".toUri())
 
         gitHubElement.setIntent(intent)
 
@@ -107,7 +107,7 @@ class AboutActivity : AppCompatActivity() {
         license.setOnClickListener {
             val url = "https://www.gnu.org/licenses/gpl-3.0.txt"
             val i = Intent(Intent.ACTION_VIEW)
-            i.setData(Uri.parse(url))
+            i.data = url.toUri()
             startActivity(i)
         }
         return license
@@ -122,12 +122,13 @@ class AboutActivity : AppCompatActivity() {
         element.setOnClickListener {
             val url = "https://liberapay.com/cylonid"
             val i = Intent(Intent.ACTION_VIEW)
-            i.setData(Uri.parse(url))
+            i.data = url.toUri()
             startActivity(i)
         }
         return element
     }
 
+    /*
     fun showPayPal(): Element {
         val license = Element()
 
@@ -140,17 +141,15 @@ class AboutActivity : AppCompatActivity() {
         }
         return license
     }
+    */
 
     fun showOpenSourcelibs(): Element {
         val os = Element()
         os.setTitle(getString(R.string.open_source_libs))
         os.setOnClickListener {
-            startActivity(
-                LibsBuilder()
-                    .withEdgeToEdge(true)
-                    .withSearchEnabled(true)
-                    .intent(this)
-            )
+            LibsBuilder().withEdgeToEdge(true)
+                .withSearchEnabled(true)
+                .start(this)
         }
         return os
     }
