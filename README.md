@@ -1,5 +1,5 @@
 
-# <img src="graphics/logo.png" width="50px" alt=""></img> Native Alpha
+# <img src="graphics/logo.png" width="50px" alt=""></img> Native Alpha++
 ![OS](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white&style=plastic)
 ![OS](https://img.shields.io/badge/MinVersion-9.0-red)
 ![SDK](https://img.shields.io/badge/SDK-35-yellowgreen)
@@ -20,11 +20,26 @@
 
 ## Screenshots
 <div style="text-align: center; margin: auto;">
-<img src="graphics/screenshots/mainScreen.png" alt="Main Screen" width="350"/>
-<img src="graphics/screenshots/addWebApp.png" alt="Add Web App" width="350"/>
-<img src="graphics/screenshots/webAppSettings.png" alt="Available Web App Settings" width="350"/>
-<img src="graphics/screenshots/globalSettings.png" alt="Global Settings" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110232.png" alt="Main Screen" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110621.png" alt="Add Web App" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110239.png" alt="Available Web App Settings" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110906.png" alt="Global Settings" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110256.png" alt="Main Screen" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110912.png" alt="Add Web App" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110303.png" alt="Available Web App Settings" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110945.png" alt="Global Settings" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110536.png" alt="Global Settings" width="350"/>
 </div>
+
+
+
+
+
+
+
+
+
+
 
 ## Download Options
 The latest version is available in the [GitHub Releases](https://github.com/cylonid/NativeAlphaForAndroid/releases).
