@@ -25,26 +25,16 @@
 
 ## Screenshots
 <div style="text-align: center; margin: auto;">
-<img src="graphics/screenshots/Screenshot_20260705-110232.png" alt="Main Screen" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110621.png" alt="Add Web App" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110239.png" alt="Available Web App Settings" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110906.png" alt="Global Settings" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110256.png" alt="Main Screen" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110912.png" alt="Add Web App" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110303.png" alt="Available Web App Settings" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110945.png" alt="Global Settings" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110536.png" alt="Global Settings" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110232.png" alt="Main Screen Dark Mode" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110621.png" alt="Youtube Background Play" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110239.png" alt="Add Web App Dark" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110906.png" alt="Global Settings Dark" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110256.png" alt="Main Screen Light" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110912.png" alt="Site Settings JSON Dark" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110303.png" alt="Add Web App Light" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110945.png" alt="Web App Settings Dark" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110536.png" alt="Youtube PWA" width="350"/>
 </div>
-
-
-
-
-
-
-
-
-
-
 
 ## Download Options
 The latest version is available in the [GitHub Releases](https://github.com/cylonid/NativeAlphaForAndroid/releases).
