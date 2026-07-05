@@ -1053,6 +1053,12 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 removeJs.append("})();");
                 view.evaluateJavascript(removeJs.toString(), null);
             }
+            JSONArray jsArray = site.optJSONArray("injectJs");
+            if (jsArray != null) {
+                for (int j = 0; j < jsArray.length(); j++) {
+                    view.evaluateJavascript(jsArray.getString(j), null);
+                }
+            }
         } catch (Exception e) {
             Log.e("NativeAlpha", "applySiteRules error", e);
         }
@@ -1060,7 +1066,21 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
     private class CustomBrowser extends WebViewClient {
         @Override public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) { showHttpAuthDialog(handler, host, realm); }
-        @Override public void onPageCommitVisible(WebView view, String url) { applySiteRules(view, url); super.onPageCommitVisible(view, url); }
+        @Override public void onPageCommitVisible(WebView view, String url) {
+            applySiteRules(view, url);
+            JSONObject site = SiteConfigManager.INSTANCE.getSiteConfig(WebViewActivity.this, url);
+            if (site != null) {
+                JSONArray jsArray = site.optJSONArray("injectJs");
+                if (jsArray != null) {
+                    for (int j = 0; j < jsArray.length(); j++) {
+                        try {
+                            view.evaluateJavascript(jsArray.getString(j), null);
+                        } catch (Exception ignored) {}
+                    }
+                }
+            }
+            super.onPageCommitVisible(view, url);
+        }
         @Override public void onPageFinished(WebView view, String url) {
             applySiteRules(view, url);
             if ("about:blank".equals(url)) {
@@ -1076,6 +1096,12 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                     if (site.has("userAgent")) view.getSettings().setUserAgentString(site.getString("userAgent"));
                     if (site.optBoolean("allowBackgroundPlayback", false)) {
                         if (webapp != null) webapp.setAllowMediaPlaybackInBackground(true);
+                    }
+                    JSONArray jsArray = site.optJSONArray("injectJs");
+                    if (jsArray != null) {
+                        for (int j = 0; j < jsArray.length(); j++) {
+                            view.evaluateJavascript(jsArray.getString(j), null);
+                        }
                     }
                 }
             } catch (Exception ignored) {}
