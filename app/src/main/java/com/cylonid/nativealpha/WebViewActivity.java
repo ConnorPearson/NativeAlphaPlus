@@ -1026,6 +1026,26 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                   }
                   window.addEventListener('play', syncState, true);
                   window.addEventListener('pause', syncState, true);
+                  
+                  function optimizeMedia() {
+                    var isHidden = window._naRealVisibilityState === 'hidden';
+                    if (location.hostname.includes('youtube.com')) {
+                      var player = document.querySelector('#movie_player') || document.querySelector('.html5-video-player');
+                      if (player && typeof player.setPlaybackQualityRange === 'function') {
+                        if (isHidden) {
+                          if (player.getPlaybackQuality() !== 'tiny') player.setPlaybackQualityRange('tiny', 'tiny');
+                        } else {
+                          if (player.getPlaybackQuality() !== 'hd720') player.setPlaybackQualityRange('hd720', 'hd720');
+                        }
+                      }
+                    }
+                    var video = document.querySelector('video');
+                    if (video) video.style.filter = isHidden ? 'brightness(0)' : '';
+                  }
+                  window.addEventListener('blur', optimizeMedia);
+                  window.addEventListener('focus', optimizeMedia);
+                  setInterval(optimizeMedia, 5000);
+                  optimizeMedia();
                 })();""";
             view.evaluateJavascript(bgJs, null);
         }
@@ -1068,17 +1088,6 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         @Override public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) { showHttpAuthDialog(handler, host, realm); }
         @Override public void onPageCommitVisible(WebView view, String url) {
             applySiteRules(view, url);
-            JSONObject site = SiteConfigManager.INSTANCE.getSiteConfig(WebViewActivity.this, url);
-            if (site != null) {
-                JSONArray jsArray = site.optJSONArray("injectJs");
-                if (jsArray != null) {
-                    for (int j = 0; j < jsArray.length(); j++) {
-                        try {
-                            view.evaluateJavascript(jsArray.getString(j), null);
-                        } catch (Exception ignored) {}
-                    }
-                }
-            }
             super.onPageCommitVisible(view, url);
         }
         @Override public void onPageFinished(WebView view, String url) {
@@ -1097,12 +1106,6 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                     if (site.optBoolean("allowBackgroundPlayback", false)) {
                         if (webapp != null) webapp.setAllowMediaPlaybackInBackground(true);
                     }
-                    JSONArray jsArray = site.optJSONArray("injectJs");
-                    if (jsArray != null) {
-                        for (int j = 0; j < jsArray.length(); j++) {
-                            view.evaluateJavascript(jsArray.getString(j), null);
-                        }
-                    }
                 }
             } catch (Exception ignored) {}
             applySiteSystemBars(url);
@@ -1111,11 +1114,17 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }
         @Nullable @Override public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
             if(urlOnFirstPageload.isEmpty()) urlOnFirstPageload = request.getUrl().toString();
+            String url = request.getUrl().toString();
+            String host = request.getUrl().getHost();
+            
+            if (host != null && (host.contains("googleads") || host.contains("doubleclick.net") || host.contains("adservice.google"))) {
+                return new WebResourceResponse("text/plain", "utf-8", null);
+            }
+
             if (webapp != null && webapp.isBlockThirdPartyRequests()) {
-                Uri uri = request.getUrl();
                 Uri webapp_uri = Uri.parse(webapp.getBaseUrl());
                 String webappHost = webapp_uri.getHost();
-                if(uri.getHost() != null && webappHost != null && !uri.getHost().endsWith(webappHost)) return new WebResourceResponse("text/plain", "utf-8", null);
+                if(host != null && webappHost != null && !host.endsWith(webappHost)) return new WebResourceResponse("text/plain", "utf-8", null);
             }
             return super.shouldInterceptRequest(view, request);
         }
