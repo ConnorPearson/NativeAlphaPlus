@@ -144,6 +144,7 @@ data class WebApp(var baseUrl: String, val ID: Int) {
             listOf(ID),
             activity
         )
+        ShortcutIconUtils.deleteIcon(activity, ID)
     }
 
 

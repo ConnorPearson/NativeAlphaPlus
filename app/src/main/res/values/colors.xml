@@ -1,11 +1,11 @@
 <resources>
-    <color name="md_theme_primary">#B71C1C</color>
+    <color name="md_theme_primary">#990033</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
-    <color name="md_theme_primaryContainer">#FFDAD6</color>
-    <color name="md_theme_onPrimaryContainer">#410002</color>
+    <color name="md_theme_primaryContainer">#FFD9E2</color>
+    <color name="md_theme_onPrimaryContainer">#3E0010</color>
     <color name="md_theme_secondary">#775652</color>
     <color name="md_theme_onSecondary">#FFFFFF</color>
-    <color name="md_theme_secondaryContainer">#FFDAD6</color>
+    <color name="md_theme_secondaryContainer">#FFD9E2</color>
     <color name="md_theme_onSecondaryContainer">#2C1513</color>
     <color name="md_theme_tertiary">#715B2E</color>
     <color name="md_theme_onTertiary">#FFFFFF</color>
@@ -13,7 +13,7 @@
     <color name="md_theme_onTertiaryContainer">#584419</color>
     <color name="md_theme_error">#BA1A1A</color>
     <color name="md_theme_onError">#FFFFFF</color>
-    <color name="md_theme_errorContainer">#FFDAD6</color>
+    <color name="md_theme_errorContainer">#FFD9E2</color>
     <color name="md_theme_onErrorContainer">#93000A</color>
     <color name="md_theme_background">#FFF8F7</color>
     <color name="md_theme_onBackground">#231918</color>
@@ -27,11 +27,11 @@
     <color name="md_theme_inverseSurface">#392E2D</color>
     <color name="md_theme_inverseOnSurface">#FFEDEA</color>
     <color name="md_theme_inversePrimary">#FFB4AB</color>
-    <color name="md_theme_primaryFixed">#FFDAD6</color>
+    <color name="md_theme_primaryFixed">#FFD9E2</color>
     <color name="md_theme_onPrimaryFixed">#3B0907</color>
     <color name="md_theme_primaryFixedDim">#FFB4AB</color>
     <color name="md_theme_onPrimaryFixedVariant">#73332D</color>
-    <color name="md_theme_secondaryFixed">#FFDAD6</color>
+    <color name="md_theme_secondaryFixed">#FFD9E2</color>
     <color name="md_theme_onSecondaryFixed">#2C1513</color>
     <color name="md_theme_secondaryFixedDim">#E7BDB8</color>
     <color name="md_theme_onSecondaryFixedVariant">#5D3F3C</color>
@@ -141,8 +141,8 @@
     <color name="md_theme_surfaceContainerHigh_highContrast">#E2D0CE</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#D4C3C0</color>
 
-    <color name="colorSignature">#b71c1c</color>
-    <color name="colorSignatureDark">#7f0000</color>
+    <color name="colorSignature">#990033</color>
+    <color name="colorSignatureDark">#660022</color>
 
     <color name="transparent">#07000000</color>
     <color name="snackbar_background">#CCCCCC</color>

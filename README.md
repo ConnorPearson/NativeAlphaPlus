@@ -18,15 +18,16 @@
   * Less memory footprint and no privacy-invading app permissions in comparison to native apps
   * Dark mode for Android 10+
 
+## Screenshots
+<div style="text-align: center; margin: auto;">
+<img src="graphics/screenshots/mainScreen.png" alt="Main Screen" width="350"/>
+<img src="graphics/screenshots/addWebApp.png" alt="Add Web App" width="350"/>
+<img src="graphics/screenshots/webAppSettings.png" alt="Available Web App Settings" width="350"/>
+<img src="graphics/screenshots/globalSettings.png" alt="Global Settings" width="350"/>
+</div>
+
 ## Download Options
-[![IzzyOnDroid Download Badge](graphics/IzzyOnDroid.png)](https://apt.izzysoft.de/fdroid/index/apk/com.cylonid.nativealpha)
-[![APK Download Badge](graphics/apk_badge.png)](https://github.com/cylonid/NativeAlphaForAndroid/releases/download/v1.5.2/NativeAlpha-extendedGithub-universal-release-v1.5.2.apk)
-[![Google Play Download Badge](graphics/google_play.png)](https://play.google.com/store/apps/details?id=com.cylonid.nativealpha)
-### Paid Download
-[![Google Play Download Badge](graphics/google_play.png)](https://play.google.com/store/apps/details?id=com.cylonid.nativealpha.pro)
-
-
-
+The latest version is available in the [GitHub Releases](https://github.com/cylonid/NativeAlphaForAndroid/releases).
 
 [![LiberaPay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/cylonid/donate)
 
@@ -116,17 +117,6 @@ For testing purposes:
 * [Espresso](https://developer.android.com/training/testing/espresso/)
 
 A list of used open-source libraries can also be found inside the app ("About" section).
-
-## Screenshots
-<details>
-<summary> Click to see screenshots </summary>
-<div style="text-align: center; margin: auto;">
-<img src="graphics/screenshots/mainScreen.png" alt="Main Screen" width="350"/>
-<img src="graphics/screenshots/addWebApp.png" alt="Add Web App" width="350"/>
-<img src="graphics/screenshots/webAppSettings.png" alt="Available Web App Settings" width="350"/>
-<img src="graphics/screenshots/globalSettings.png" alt="Global Settings" width="350"/>
-</div>
-</details>
 
 
 ## License

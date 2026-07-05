@@ -14,6 +14,6 @@
     <item
         android:width="250dp"
         android:height="250dp"
-        android:drawable="@mipmap/native_alpha_white"
+        android:drawable="@drawable/native_alpha_white_foreground"
         android:gravity="center" />
 </layer-list>

@@ -109,8 +109,8 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
         updatePreview(editText.text.toString().trim())
 
         preview.setOnClickListener {
-            val colors = arrayOf("#000000", "#FFFFFF", "#B71C1C", "#1E1E1E", "#F5F5F5", "#2F3E59", "#232F3E", "#00288D", "#1F1F1F")
-            val colorNames = arrayOf("AMOLED Black", "Pure White", "Signature Red", "Dark Grey", "Light Grey", "Blitzortung Blue", "Amazon Dark", "PayPal Blue", "AccuWeather Dark")
+            val colors = arrayOf("#000000", "#FFFFFF", "#990033", "#1E1E1E", "#F5F5F5", "#2F3E59", "#232F3E", "#00288D", "#1F1F1F")
+            val colorNames = arrayOf("AMOLED Black", "Pure White", "Signature Accent", "Dark Grey", "Light Grey", "Blitzortung Blue", "Amazon Dark", "PayPal Blue", "AccuWeather Dark")
             
             MaterialAlertDialogBuilder(this, R.style.AppTheme_AlertDialog)
                 .setTitle("Pick a color")

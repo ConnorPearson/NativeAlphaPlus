@@ -2,6 +2,7 @@ package com.cylonid.nativealpha
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.util.Log
 import android.os.Bundle
 import android.text.Editable
 import android.text.Html
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+        Log.d("NativeAlpha", "MainActivity onCreate. TaskID: $taskId")
         setContentView(R.layout.activity_main)
         webAppListFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container_view) as WebAppListFragment
@@ -42,9 +44,21 @@ class MainActivity : AppCompatActivity() {
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener { buildAddWebsiteDialog(getString(R.string.add_webapp)) }
         personalizeToolbar()
+    }
 
-        AdblockLifecycleHelper(this).trySyncOperation({ AdFilter.create(applicationContext) })
+    override fun onPause() {
+        super.onPause()
+        Log.d("NativeAlpha", "MainActivity onPause")
+    }
 
+    override fun onStop() {
+        super.onStop()
+        Log.d("NativeAlpha", "MainActivity onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("NativeAlpha", "MainActivity onDestroy")
     }
 
     override fun onResume() {
@@ -75,7 +89,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun personalizeToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        toolbar.setTitle(R.string.app_name_plus)
+        toolbar.title = ""
         setSupportActionBar(toolbar)
     }
 
