@@ -8,15 +8,20 @@
 [![GitHub license](https://img.shields.io/github/license/cylonid/NativeAlphaForAndroid?color=orange)](https://github.com/cylonid/NativeAlphaForAndroid/blob/master/LICENSE)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
-
 ## Features
-  * Shows any website in a borderless full-screen window using Android System WebView.
-  * Create home screen shortcuts and retrieves icons in suitable resolution.
-  * Various settings (JavaScript, cookies, adblocking, location/camera/microphone access) can be set for every web app individually
-  * Navigation with multi-touch gestures while browsing.
-  * Opt-in adblock with user-selected filter lists.
-  * Less memory footprint and no privacy-invading app permissions in comparison to native apps
-  * Dark mode for Android 10+
+* Shows any website in a borderless full-screen window using Android System WebView.
+* Create home screen shortcuts and retrieve icons in a suitable resolution.
+* Various settings (JavaScript, cookies, ad blocking, location/camera/microphone access) can be configured individually for each web app.
+* Navigation with multi-touch gestures while browsing.
+* Opt-in ad blocking with user-selected filter lists.
+* DOM and CSS modifications for an improved mobile browsing experience.
+* Automatically removes "Get our app" banners and similar promotional components on supported sites.
+* **[Experimental]** Background playback for YouTube.
+* Modifiable JSON configuration for custom DOM and CSS modifications.
+* Custom header and footer app colors on a per-site basis.
+* Less memory footprint and no privacy-invading app permissions compared to native apps.
+* Dark mode support for Android 10+.
+
 
 ## Screenshots
 <div style="text-align: center; margin: auto;">
