@@ -8,22 +8,32 @@
 [![GitHub license](https://img.shields.io/github/license/cylonid/NativeAlphaForAndroid?color=orange)](https://github.com/cylonid/NativeAlphaForAndroid/blob/master/LICENSE)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
-
 ## Features
-  * Shows any website in a borderless full-screen window using Android System WebView.
-  * Create home screen shortcuts and retrieves icons in suitable resolution.
-  * Various settings (JavaScript, cookies, adblocking, location/camera/microphone access) can be set for every web app individually
-  * Navigation with multi-touch gestures while browsing.
-  * Opt-in adblock with user-selected filter lists.
-  * Less memory footprint and no privacy-invading app permissions in comparison to native apps
-  * Dark mode for Android 10+
+* Shows any website in a borderless full-screen window using Android System WebView.
+* Create home screen shortcuts and retrieve icons in a suitable resolution.
+* Various settings (JavaScript, cookies, ad blocking, location/camera/microphone access) can be configured individually for each web app.
+* Navigation with multi-touch gestures while browsing.
+* Opt-in ad blocking with user-selected filter lists.
+* DOM and CSS modifications for an improved mobile browsing experience.
+* Manually removes "Get our app" banners and similar promotional components on supported sites.
+* **[Experimental]** Background playback for YouTube.
+* Modifiable JSON configuration for custom DOM and CSS modifications.
+* Custom header and footer app colors on a per-site basis.
+* Less memory footprint and no privacy-invading app permissions compared to native apps.
+* Dark mode support for Android 10+.
+
 
 ## Screenshots
 <div style="text-align: center; margin: auto;">
-<img src="graphics/screenshots/mainScreen.png" alt="Main Screen" width="350"/>
-<img src="graphics/screenshots/addWebApp.png" alt="Add Web App" width="350"/>
-<img src="graphics/screenshots/webAppSettings.png" alt="Available Web App Settings" width="350"/>
-<img src="graphics/screenshots/globalSettings.png" alt="Global Settings" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110232.png" alt="Main Screen Dark Mode" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110621.png" alt="Youtube Background Play" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110239.png" alt="Add Web App Dark" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110906.png" alt="Global Settings Dark" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110256.png" alt="Main Screen Light" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110912.png" alt="Site Settings JSON Dark" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110303.png" alt="Add Web App Light" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110945.png" alt="Web App Settings Dark" width="350"/>
+<img src="graphics/screenshots/Screenshot_20260705-110536.png" alt="Youtube PWA" width="350"/>
 </div>
 
 ## Download Options
