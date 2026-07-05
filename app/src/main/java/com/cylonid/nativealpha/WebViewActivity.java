@@ -135,6 +135,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private String urlOnFirstPageload = "";
     private boolean fallbackToDefaultLongClickBehaviour = false;
     private PopupMenu mPopupMenu = null;
+    private boolean backgroundPlaybackStarted = false;
 
     private final ActivityResultLauncher<Intent> fileChooserLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -643,6 +644,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     protected void onResume() {
         super.onResume();
         Log.d("NativeAlpha", "WebViewActivity onResume. webapp: " + (webapp != null ? webapp.getTitle() : "null"));
+        backgroundPlaybackStarted = false;
         int new_id = getIntent().getIntExtra(Const.INTENT_WEBAPPID, -1);
 
         if (new_id != webappID) {
@@ -671,29 +673,44 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }
     }
 
+    @Override
+    protected void onUserLeaveHint() {
+        if (webapp != null && webapp.isAllowMediaPlaybackInBackground()) {
+            startBackgroundPlayback();
+        }
+        super.onUserLeaveHint();
+    }
+
+    private void startBackgroundPlayback() {
+        if (backgroundPlaybackStarted || webapp == null) return;
+        backgroundPlaybackStarted = true;
+        Log.d("NativeAlpha", "Starting background playback transition");
+        if (wv != null) {
+            wv.evaluateJavascript("window._naRealVisibilityState = 'hidden'; (function() { return !document.querySelectorAll('video, audio')[0]?.paused; })();", value -> {
+                userWantsPlaying = "true".equals(value);
+                if (userWantsPlaying) {
+                    initMediaSession(); 
+                    MediaKeepAliveService.start(this, webapp, mediaSession != null ? mediaSession.getSessionToken() : null);
+                    bg_burst_count = 25;
+                    bg_keepalive_handler.removeCallbacks(bg_keepalive_runnable);
+                    bg_keepalive_runnable.run();
+                }
+            });
+        }
+    }
+
     private final Handler bg_keepalive_handler = new Handler();
+    // ... (rest of bg_keepalive stuff)
     private int bg_burst_count = 0;
     private final Runnable bg_keepalive_runnable = new Runnable() {
         @Override
         public void run() {
             if (wv != null && webapp != null && webapp.isAllowMediaPlaybackInBackground()) {
                 if (userWantsPlaying) {
-                    wv.evaluateJavascript("""
-            (function() {
-              window._naUserWantsPlaying = true;
-              if (typeof syncState === 'function') syncState();
-              function wakeMedia(root) {
-                root.querySelectorAll('video, audio').forEach(function(m) {
-                  if (m.paused && !m.ended && m.readyState > 0) m.play().catch(() => {});
-                  if (m.tagName === 'VIDEO' && m.style.display === 'none') m.style.display = 'block';
-                });
-                var all = root.querySelectorAll('*');
-                for (var i = 0; i < all.length; i++) if (all[i].shadowRoot) wakeMedia(all[i].shadowRoot);
-              }
-              wakeMedia(document);
-            })();""", null);
+                    wv.resumeTimers();
+                    wv.evaluateJavascript("if (window._naWakeMedia) window._naWakeMedia(document);", null);
                 }
-                if (bg_burst_count > 0) { bg_burst_count--; bg_keepalive_handler.postDelayed(this, 1000); }
+                if (bg_burst_count > 0) { bg_burst_count--; bg_keepalive_handler.postDelayed(this, 200); }
                 else bg_keepalive_handler.postDelayed(this, 30000);
             }
         }
@@ -709,13 +726,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 wv.pauseTimers();
             }
         } else if (webapp != null && webapp.isAllowMediaPlaybackInBackground()) {
-            if (wv != null) wv.evaluateJavascript("window._naRealVisibilityState = 'hidden';", null);
-            userWantsPlaying = true;
-            initMediaSession(); 
-            MediaKeepAliveService.start(this, webapp, mediaSession != null ? mediaSession.getSessionToken() : null);
-            bg_burst_count = 5;
-            bg_keepalive_handler.removeCallbacks(bg_keepalive_runnable);
-            bg_keepalive_handler.postDelayed(bg_keepalive_runnable, 500);
+            startBackgroundPlayback();
         }
         if(mPopupMenu != null) mPopupMenu.dismiss();
         if (webapp != null && (webapp.isClearCache() || DataManager.getInstance().getSettings().isClearCache())) {
@@ -959,75 +970,63 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private void applySiteRules(WebView view, String url) {
         if (webapp == null) return;
         if (webapp.isAllowMediaPlaybackInBackground()) {
-            String bgJs = "(function() {" +
-                    "var block = function(e) { e.stopImmediatePropagation(); };" +
-                    "try {" +
-                    "  var getter = {get: function() { return 'visible'; }, configurable: true};" +
-                    "  var hiddenGetter = {get: function() { return false; }, configurable: true};" +
-                    "  Object.defineProperty(document, 'visibilityState', getter);" +
-                    "  Object.defineProperty(document, 'webkitVisibilityState', getter);" +
-                    "  Object.defineProperty(document, 'hidden', hiddenGetter);" +
-                    "  Object.defineProperty(document, 'webkitHidden', hiddenGetter);" +
-                    "} catch (e) { }" +
-                    "window.addEventListener('visibilitychange', block, true);" +
-                    "window.addEventListener('webkitvisibilitychange', block, true);" +
-                    "window.addEventListener('blur', block, true);" +
-                    "window.addEventListener('focus', block, true);" +
-                    "window.addEventListener('pagehide', block, true);" +
-                    "if (window.AudioContext) { AudioContext.prototype.suspend = function() { return Promise.resolve(); }; }" +
-                    "if (window.webkitAudioContext) { webkitAudioContext.prototype.suspend = function() { return Promise.resolve(); }; }" +
-                    "function pressKey() {" +
-                    "  if (window._naUserWantsPlaying === false || window._naRealVisibilityState === 'visible') return;" +
-                    "  var key = 18;" +
-                    "  document.dispatchEvent(new KeyboardEvent('keydown', {bubbles:true, cancelable:true, keyCode:key, which:key}));" +
-                    "  document.dispatchEvent(new KeyboardEvent('keyup', {bubbles:true, cancelable:true, keyCode:key, which:key}));" +
-                    "  window.dispatchEvent(new Event('scroll'));" +
-                    "  document.querySelectorAll('video, audio').forEach(function(m) {" +
-                    "    if (m.paused && m.duration > 0 && !m.ended) m.play().catch(() => {});" +
-                    "    if (m.tagName === 'VIDEO' && m.style.display === 'none') m.style.display = 'block';" +
-                    "  });" +
-                    "}" +
-                    "setInterval(pressKey, 30000);" +
-                    "Object.defineProperty(document, 'hasFocus', {get: function() { return function() { return true; }; }, configurable: true});" +
-                    "function optimizeMedia() {" +
-                    "  if (window._naRealVisibilityState === 'hidden') {" +
-                    "    if (location.hostname.includes('youtube.com')) {" +
-                    "      var player = document.querySelector('#movie_player') || document.querySelector('.html5-video-player');" +
-                    "      if (player && typeof player.getPlaybackQuality === 'function' && player.getPlaybackQuality() !== 'tiny') {" +
-                    "        if (typeof player.setPlaybackQualityRange === 'function') {" +
-                    "          player.setPlaybackQualityRange('tiny', 'tiny');" +
-                    "          setTimeout(function() { document.querySelectorAll('video').forEach(function(v) { v.play().catch(() => {}); }); }, 100);" +
-                    "        }" +
-                    "      }" +
-                    "    }" +
-                    "    document.querySelectorAll('video').forEach(v => { v.style.filter = 'brightness(0)'; });" +
-                    "  } else {" +
-                    "    if (location.hostname.includes('youtube.com')) {" +
-                    "      var player = document.querySelector('#movie_player') || document.querySelector('.html5-video-player');" +
-                    "      if (player && typeof player.setPlaybackQualityRange === 'function') player.setPlaybackQualityRange('auto', 'auto');" +
-                    "    }" +
-                    "    document.querySelectorAll('video').forEach(v => { v.style.filter = ''; });" +
-                    "  }" +
-                    "}" +
-                    "window.addEventListener('blur', optimizeMedia); window.addEventListener('focus', optimizeMedia);" +
-                    "setInterval(optimizeMedia, 10000);" +
-                    "window._naUserWantsPlaying = true; window._naRealVisibilityState = 'visible';" +
-                    "function syncState() {" +
-                    "  var isPlaying = false; var media = document.querySelectorAll('video, audio');" +
-                    "  for (var i = 0; i < media.length; i++) { if (!media[i].paused) isPlaying = true; }" +
-                    "  if (window._naRealVisibilityState === 'visible') {" +
-                    "    window._naUserWantsPlaying = isPlaying;" +
-                    "    if (window.NativeAlpha) window.NativeAlpha.setPlaybackState(isPlaying);" +
-                    "  }" +
-                    "  var title = document.title.replace(' - YouTube', ''); var artist = 'Native Alpha++';" +
-                    "  if (location.hostname.includes('youtube.com')) {" +
-                    "    artist = 'YouTube'; var channel = document.querySelector('#upload-info .ytd-channel-name a, .ytp-ce-channel-title, [itemprop=\"author\"] [itemprop=\"name\"]');" +
-                    "    if (channel) artist = channel.innerText || channel.content;" +
-                    "  }" +
-                    "  if (window.NativeAlpha && window.NativeAlpha.updateMetadata) window.NativeAlpha.updateMetadata(title, artist);" +
-                    "}" +
-                    "window.addEventListener('play', syncState, true); window.addEventListener('pause', syncState, true);" +
-                    "})();";
+            String bgJs = """
+                (function() {
+                  var block = function(e) { e.stopImmediatePropagation(); };
+                  try {
+                    var getter = {get: function() { return 'visible'; }, configurable: true};
+                    var hiddenGetter = {get: function() { return false; }, configurable: true};
+                    Object.defineProperty(document, 'visibilityState', getter);
+                    Object.defineProperty(document, 'webkitVisibilityState', getter);
+                    Object.defineProperty(document, 'hidden', hiddenGetter);
+                    Object.defineProperty(document, 'webkitHidden', hiddenGetter);
+                    Object.defineProperty(document, 'hasFocus', {get: function() { return function() { return true; }; }, configurable: true});
+                  } catch (e) { }
+                  
+                  window.addEventListener('visibilitychange', block, true);
+                  window.addEventListener('webkitvisibilitychange', block, true);
+                  window.addEventListener('blur', block, true);
+                  window.addEventListener('focus', block, true);
+                  window.addEventListener('pagehide', block, true);
+                  
+                  if (window.AudioContext) AudioContext.prototype.suspend = function() { return Promise.resolve(); };
+                  if (window.webkitAudioContext) webkitAudioContext.prototype.suspend = function() { return Promise.resolve(); };
+                  
+                  window._naWakeMedia = function(root) {
+                    root.querySelectorAll('video, audio').forEach(function(m) {
+                      if (m.paused && m.duration > 0 && !m.ended && m.readyState > 0) m.play().catch(() => {});
+                      if (m.tagName === 'VIDEO' && m.style.display === 'none') m.style.display = 'block';
+                    });
+                    var all = root.querySelectorAll('*');
+                    for (var i = 0; i < all.length; i++) if (all[i].shadowRoot) window._naWakeMedia(all[i].shadowRoot);
+                  };
+                  
+                  document.addEventListener('pause', function(e) {
+                    if (window._naUserWantsPlaying && window._naRealVisibilityState === 'hidden') {
+                      window._naWakeMedia(document);
+                    }
+                  }, true);
+                  
+                  window._naRealVisibilityState = 'visible';
+                  window._naUserWantsPlaying = (function() { var m = document.querySelectorAll('video, audio'); for(var i=0; i<m.length; i++) if(!m[i].paused) return true; return false; })();
+                  
+                  function syncState() {
+                    var isPlaying = false; var media = document.querySelectorAll('video, audio');
+                    for (var i = 0; i < media.length; i++) { if (!media[i].paused) isPlaying = true; }
+                    if (window._naRealVisibilityState === 'visible') {
+                      window._naUserWantsPlaying = isPlaying;
+                      if (window.NativeAlpha) window.NativeAlpha.setPlaybackState(isPlaying);
+                    }
+                    var title = document.title.replace(' - YouTube', ''); var artist = 'Native Alpha++';
+                    if (location.hostname.includes('youtube.com')) {
+                      artist = 'YouTube'; var channel = document.querySelector('#upload-info .ytd-channel-name a, .ytp-ce-channel-title, [itemprop="author"] [itemprop="name"]');
+                      if (channel) artist = channel.innerText || channel.content;
+                    }
+                    if (window.NativeAlpha && window.NativeAlpha.updateMetadata) window.NativeAlpha.updateMetadata(title, artist);
+                  }
+                  window.addEventListener('play', syncState, true);
+                  window.addEventListener('pause', syncState, true);
+                })();""";
             view.evaluateJavascript(bgJs, null);
         }
         try {
@@ -1130,7 +1129,14 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     }
 
     public class WebAppInterface {
-        @JavascriptInterface public void setPlaybackState(boolean playing) { Log.d("NativeAlpha", "JS playback: " + playing); userWantsPlaying = playing; runOnUiThread(() -> updatePlaybackState(playing ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED)); }
+        @JavascriptInterface public void setPlaybackState(boolean playing) { 
+            Log.d("NativeAlpha", "JS playback: " + playing); 
+            userWantsPlaying = playing; 
+            runOnUiThread(() -> {
+                updatePlaybackState(playing ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED);
+                if (playing && webapp != null && webapp.isAllowMediaPlaybackInBackground()) initMediaSession();
+            }); 
+        }
         @JavascriptInterface public void updateMetadata(String title, String artist) { runOnUiThread(() -> {
                 if (mediaSession != null) {
                     mediaSession.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).putString(MediaMetadata.METADATA_KEY_ARTIST, artist).build());
