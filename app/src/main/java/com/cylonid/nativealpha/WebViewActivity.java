@@ -1223,7 +1223,19 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
             String content = new String(java.nio.file.Files.readAllBytes(internalFile.toPath()), StandardCharsets.UTF_8);
             JSONObject json = normalizeJsonKeys(new JSONObject(content));
-            JSONObject siteConfig = json.optJSONObject(host);
+            
+            String keyToUse = host;
+            if (!json.has(host)) {
+                for (Iterator<String> it = json.keys(); it.hasNext(); ) {
+                    String key = it.next();
+                    if (host.endsWith("." + key)) {
+                        keyToUse = key;
+                        break;
+                    }
+                }
+            }
+            
+            JSONObject siteConfig = json.optJSONObject(keyToUse);
 
             if (siteConfig != null) {
                 JSONArray removeArray = siteConfig.optJSONArray("remove");
@@ -1235,12 +1247,12 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                         }
                     }
                     siteConfig.put("remove", newArray);
-                    json.put(host, siteConfig);
+                    json.put(keyToUse, siteConfig);
 
                     try (FileOutputStream fos = new FileOutputStream(internalFile)) {
                         fos.write(json.toString(2).getBytes(StandardCharsets.UTF_8));
                     }
-                    cachedSitesMap.put(host, siteConfig);
+                    cachedSitesMap.put(keyToUse, siteConfig);
                 }
             }
         } catch (Exception e) {
@@ -1270,7 +1282,20 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             }
 
             JSONObject json = normalizeJsonKeys(new JSONObject(content));
-            JSONObject siteConfig = json.optJSONObject(host);
+            
+            // Try to find the most specific existing key that matches this host
+            String keyToUse = host;
+            if (!json.has(host)) {
+                for (Iterator<String> it = json.keys(); it.hasNext(); ) {
+                    String key = it.next();
+                    if (host.endsWith("." + key)) {
+                        keyToUse = key;
+                        break;
+                    }
+                }
+            }
+            
+            JSONObject siteConfig = json.optJSONObject(keyToUse);
             if (siteConfig == null) siteConfig = new JSONObject();
 
             JSONArray removeArray = siteConfig.optJSONArray("remove");
@@ -1278,13 +1303,13 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             removeArray.put(selector);
 
             siteConfig.put("remove", removeArray);
-            json.put(host, siteConfig);
+            json.put(keyToUse, siteConfig);
 
             FileOutputStream fos = new FileOutputStream(internalFile);
             fos.write(json.toString(2).getBytes(StandardCharsets.UTF_8));
             fos.close();
 
-            cachedSitesMap.put(host, siteConfig);
+            cachedSitesMap.put(keyToUse, siteConfig);
         } catch (Exception e) {
             Log.e("NativeAlpha", "Error saving removal rule", e);
         }
