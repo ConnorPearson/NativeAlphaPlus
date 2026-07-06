@@ -2,23 +2,23 @@
 <html lang="de">
 
 <head>
+  <title>Native Alpha++ Update</title>
   <link rel="stylesheet" href="news.css">
   <meta name="color-scheme" content="light dark">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    function hideById(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+    function showById(id) {
+      document.getElementById(id).style.display = 'block';
+    }
+  </script>
 </head>
-
-<script>
-  function hideById(id) {
-    document.getElementById(id).style.display = 'none';
-  }
-  function showById(id) {
-    document.getElementById(id).style.display = 'block';
-  }
-</script>
 
 <body>
   <header>
-    <img class="logo" src="../logo.svg">
+    <img class="logo" src="../logo.svg" alt="Native Alpha++ Logo">
   </header>
   <div id="wrapper">
     <aside></aside>
@@ -38,7 +38,7 @@
         </div>
       </article>
       <article id="nonGp">
-        Nachdem Sie die über GitHub bzw. IzzyOnDroid verteilte App nutzen, erhalten Sie kostenlosen Zugang zu allen Features von Native Alpha Plus. Wenn Sie die App nützlich finden, können Sie den Entwickler auf <a href="https://liberapay.com/cylonid">Liberapay</a> unterstützen.
+        Nachdem Sie die über GitHub bzw. IzzyOnDroid verteilte App nutzen, erhalten Sie kostenlosen Zugang zu allen Features von Native Alpha++. Wenn Sie die App nützlich finden, können Sie den Entwickler auf <a href="https://liberapay.com/cylonid">Liberapay</a> unterstützen.
       </article>
       <article id="eula">
         <h1>Nutzungsbedingungen - <wbr>Haftungsausschluss</h1>
@@ -55,11 +55,11 @@
           der Nutzung oder anderen Geschäften mit der Software ergeben.</p>
       </article>
       <div class="button-wrapper">
-        <button class="tonal-button" onclick="window.NAlpha.onOkButtonPressed()">OK</button>
+        <button class="tonal-button" onclick="NAlpha.onOkButtonPressed()">OK</button>
       </div>
     </main>
     <aside></aside>
-  </div id="wrapper">
+  </div>
 </body>
 
 </html>

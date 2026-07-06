@@ -1,5 +1,5 @@
 :root {
-  --custom-red: #b71c1c;
+  --custom-red: #990033;
   --tonal-border-radius: 20px;
   --tonal-font-weight: 500;
   --tonal-font-size: 14px;
@@ -18,7 +18,7 @@ body {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --tonal-bg: #FFDAD6;
+    --tonal-bg: #FFD9E2;
     --tonal-fg: #5D3F3C;
   }
   body {

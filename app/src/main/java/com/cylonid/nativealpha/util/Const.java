@@ -26,7 +26,12 @@ public class Const {
 
     public static ArrayList<AdblockConfig> getDefaultAdBlockConfig() {
         ArrayList<AdblockConfig> list = new ArrayList<>();
-        list.add(new AdblockConfig("Fanboy Ultimate List", "https://fanboy.co.nz/r/fanboy-ultimate.txt"));
+        list.add(new AdblockConfig("AdGuard Base Filter", "https://filters.adtidy.org/extension/chromium/filters/2.txt"));
+        list.add(new AdblockConfig("EasyList", "https://easylist.to/easylist/easylist.txt"));
+        list.add(new AdblockConfig("EasyPrivacy", "https://easylist.to/easylist/easyprivacy.txt"));
+        list.add(new AdblockConfig("AdGuard Mobile Ads", "https://filters.adtidy.org/extension/chromium/filters/11.txt"));
+        list.add(new AdblockConfig("uBlock filters – Ads", "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt"));
+        list.add(new AdblockConfig("uBlock filters – Quick Fixes", "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt"));
         return list;
     }
 }

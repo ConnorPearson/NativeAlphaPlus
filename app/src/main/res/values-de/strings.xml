@@ -81,8 +81,8 @@
     <string name="dialog_permission_location_title">Standortzugriff-Anfrage</string>
     <string name="dialog_permission_drm_txt">Möchten Sie dieser Web-App erlauben, DRM-geschützte Inhalte zu laden?</string>
     <string name="dialog_permission_drm_title">DRM-Inhalte</string>
-    <string name="permission_location_rationale">Wenn Sie möchten, dass Web-Apps auf Ihren Standort zugreifen können, können Sie Native Alpha die Erlaubnis dazu erteilen. Sie können dies für jede Web-App einzeln entscheiden.</string>
-    <string name="permission_storage_rationale">Wenn Sie über Native Alpha Dateien herunterladen möchten, müssen Sie dem Zugriff auf den Speicher zustimmen.</string>
+    <string name="permission_location_rationale">Wenn Sie möchten, dass Web-Apps auf Ihren Standort zugreifen können, können Sie Native Alpha++ die Erlaubnis dazu erteilen. Sie können dies für jede Web-App einzeln entscheiden.</string>
+    <string name="permission_storage_rationale">Wenn Sie über Native Alpha++ Dateien herunterladen möchten, müssen Sie dem Zugriff auf den Speicher zustimmen.</string>
     <string name="file_download">Datei wird heruntergeladen…</string>
     <string name="custom_icon">Eigenes Symbol verwenden</string>
     <string name="show_progress_bar_during_page_load">Ladebalken anzeigen</string>
@@ -177,4 +177,12 @@
     <string name="support_liberapay">Unterstütze mich auf Liberapay</string>
     <string name="adblock_warning_text">Ihre aktuellen Adblocker-Einstellungen führen möglicherweise zu Problemen oder Abstürzen. Leider funktionieren nicht alle Filterlisten auf allen Geräten.\n\nEs wird empfohlen, die Filterlisten zu leeren und testweise neu zu befüllen.</string>
     <string name="warning">Warnung</string>
+
+    <string name="site_rules_config">Seitenspezifische Regeln (JSON)</string>
+    <string name="status_bar_color">Statusleistenfarbe</string>
+    <string name="bottom_bar_color">Navigationsleistenfarbe</string>
+    <string name="loading_bar_color">Ladebalkenfarbe</string>
+    <string name="dom_removal_selectors">DOM-Entfernung (Selektoren, einer pro Zeile)</string>
+    <string name="inject_css_rules">CSS injizieren (Regeln, eine pro Zeile)</string>
+    <string name="reset_to_original">Auf Originalregeln zurücksetzen</string>
 </resources>

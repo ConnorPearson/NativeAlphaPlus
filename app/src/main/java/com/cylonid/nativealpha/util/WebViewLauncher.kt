@@ -57,7 +57,10 @@ object WebViewLauncher {
             return null
         }
         val intent = Intent(c, webview_class)
-        if (webapp.isBiometricProtection) intent.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+        
+        if (webapp.isBiometricProtection) intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
         intent.putExtra(Const.INTENT_WEBAPPID, webapp.ID)
         intent.data = Uri.parse(webapp.baseUrl + webapp.ID)
         intent.action = Intent.ACTION_VIEW

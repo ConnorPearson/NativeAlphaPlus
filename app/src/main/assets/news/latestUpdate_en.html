@@ -2,23 +2,23 @@
 <html lang="en">
 
 <head>
+  <title>Native Alpha++ Update</title>
   <link rel="stylesheet" href="news.css">
   <meta name="color-scheme" content="light dark">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    function hideById(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+    function showById(id) {
+      document.getElementById(id).style.display = 'block';
+    }
+  </script>
 </head>
-
-<script>
-  function hideById(id) {
-    document.getElementById(id).style.display = 'none';
-  }
-  function showById(id) {
-    document.getElementById(id).style.display = 'block';
-  }
-</script>
 
 <body>
   <header>
-    <img class="logo" src="../logo.svg">
+    <img class="logo" src="../logo.svg" alt="Native Alpha++ Logo">
   </header>
   <div id="wrapper">
     <aside></aside>
@@ -40,7 +40,7 @@
 
       </article>
       <article id="nonGp">
-        As you are using the app version distributed via GitHub or IzzyOnDroid, you get access to all Plus features free of charge. If you find Native Alpha useful, please consider supporting the developer on <a href="https://liberapay.com/cylonid">Liberapay</a>.
+        As you are using the app version distributed via GitHub or IzzyOnDroid, you get access to all Native Alpha++ features free of charge. If you find Native Alpha++ useful, please consider supporting the developer on <a href="https://liberapay.com/cylonid">Liberapay</a>.
       </article>
       <article id="eula">
         <h1>Terms of Usage - <wbr>Nonliability</h1>
@@ -56,11 +56,11 @@
           in the software.</p>
       </article>
       <div class="button-wrapper">
-        <button class="tonal-button" onclick="window.NAlpha.onOkButtonPressed()">OK</button>
+        <button class="tonal-button" onclick="NAlpha.onOkButtonPressed()">OK</button>
       </div>
     </main>
     <aside></aside>
-  </div id="wrapper">
+  </div>
 </body>
 
 </html>

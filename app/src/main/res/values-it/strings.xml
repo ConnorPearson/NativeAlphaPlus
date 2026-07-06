@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Native Alpha</string>
+    <string name="app_name" translatable="false">Native Alpha++</string>
     <string name="action_settings">Impostazioni</string>
     <!-- Strings used for fragments for navigation -->
     <string name="spinner_prompt">Modalità UI</string>
@@ -84,8 +84,8 @@
     <string name="dialog_permission_location_txt">Si desidera concedere a questa Web App l\'accesso alla propria posizione? È possibile revocare questa decisione in qualsiasi momento nel menu Impostazioni della Web App.</string>
     <string name="dialog_permission_drm_title">Contenuto DRM</string>
     <string name="dialog_permission_drm_txt">Si desidera consentire a questa Web App di caricare contenuti protetti da DRM?</string>
-    <string name="permission_location_rationale">Se si desidera che le Web App siano in grado di recuperare la propria posizione, è possibile concedere a Native Alpha l\'autorizzazione ad accedere alla posizione. Si può decidere di concedere l\'autorizzazione per ogni Web App individualmente.</string>
-    <string name="permission_storage_rationale">Se si desidera che le Web App Native Alpha siano in grado di scaricare i file, è necessario accettare la richiesta di autorizzazione all\'archiviazione.</string>
+    <string name="permission_location_rationale">Se si desidera che le Web App siano in grado di recuperare la propria posizione, è possibile concedere a Native Alpha++ l\'autorizzazione ad accedere alla posizione. Si può decidere di concedere l\'autorizzazione per ogni Web App individualmente.</string>
+    <string name="permission_storage_rationale">Se si desidera che le Web App Native Alpha++ siano in grado di scaricare i file, è necessario accettare la richiesta di autorizzazione all\'archiviazione.</string>
     <string name="file_download">Scaricamento file in corso…</string>
     <string name="custom_icon">Seleziona un\'icona personalizzata</string>
     <string name="show_progress_bar_during_page_load">Mostra barra di avanzamento durante il caricamento della pagina</string>
@@ -160,6 +160,7 @@
     <string name="webview_activity_launch_failed">Impossibile avviare la Web App.</string>
     <string name="no_url_entered">Inserire un indirizzo</string>
     <string name="scroll_to_bottom">Scorri fino in fondo.</string>
+    <string name="file_download_failed">Download fallito.</string>
     <string name="always_show_software_buttons">Mostra sempre i pulsanti di navigazione del software</string>
     <string name="use_standard_context_menu_temporarily">Utilizzare temporaneamente il menu contestuale standard</string>
     <string name="use_standard_context_menu_permanently">Utilizzare il menu contestuale standard</string>
@@ -178,4 +179,12 @@
     <string name="support_liberapay">Sostienimi su Liberapay</string>
     <string name="adblock_warning_text">Le impostazioni attuali dell\'ad blocker potrebbero causare problemi o arresti anomali. Purtroppo non tutte le liste di filtri funzionano su tutti i dispositivi.\n\nSi consiglia di svuotare le liste di filtri e riempirle nuovamente per testare.</string>
     <string name="warning">Avviso</string>
+
+    <string name="site_rules_config">Regole specifiche del sito (JSON)</string>
+    <string name="status_bar_color">Colore della barra di stato</string>
+    <string name="bottom_bar_color">Colore della barra inferiore</string>
+    <string name="loading_bar_color">Colore della barra di caricamento</string>
+    <string name="dom_removal_selectors">Rimozione DOM (Selettori, uno per riga)</string>
+    <string name="inject_css_rules">Iniezione CSS (Regole, una per riga)</string>
+    <string name="reset_to_original">Ripristina le regole originali</string>
 </resources>

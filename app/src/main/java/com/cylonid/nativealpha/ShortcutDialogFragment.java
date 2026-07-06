@@ -362,9 +362,10 @@ public class ShortcutDialogFragment extends DialogFragment  {
         Intent intent = WebViewLauncher.createWebViewIntent(webapp, requireActivity());
 
         IconCompat icon;
-        if (bitmap != null)
+        if (bitmap != null) {
             icon = IconCompat.createWithBitmap(bitmap);
-        else
+            ShortcutIconUtils.saveIcon(requireContext(), webapp.getID(), bitmap);
+        } else
             icon = IconCompat.createWithResource(requireActivity(), R.mipmap.native_alpha_shortcut);
 
 
@@ -374,6 +375,10 @@ public class ShortcutDialogFragment extends DialogFragment  {
         if (webapp.getTitle().equals("")) {
             final_title = "Unknown";
         }
+
+        // Update the web app's title so it shows correctly in Recents and the list
+        webapp.setTitle(final_title);
+        DataManager.getInstance().saveWebAppData();
 
         if (ShortcutManagerCompat.isRequestPinShortcutSupported(requireActivity())) {
 

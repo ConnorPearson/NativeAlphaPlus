@@ -17,8 +17,8 @@
 
 ## Version 0.83
 * Multiple Web Apps will be kept open in background (similar to opened tabs in a mobile browser). This behaviour is limited by system settings and your device's RAM.
-* Backup & Restore of Native Alpha settings + Web Apps
-* Refined "Go Back" behaviour to get back to Native Alpha Main Screen from an openend Web App.
+* Backup & Restore of Native Alpha++ settings + Web Apps
+* Refined "Go Back" behaviour to get back to Native Alpha++ Main Screen from an openend Web App.
 * New multi-touch gesture (two-finger down) to reload page.
  
 ## Version 0.82.1
