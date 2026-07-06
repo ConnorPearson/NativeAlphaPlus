@@ -13,64 +13,114 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             color: white;
             padding: 12px 20px;
-            border-radius: 30px;
-            z-index: 100000;
+            border-radius: 20px;
+            z-index: 1000000;
             font-family: sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
             max-width: 90%;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #na-selector-ui .na-nav-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        #na-selector-ui .na-action-row {
+            display: flex;
+            gap: 10px;
         }
         #na-selector-ui button {
-            background: #ff0000;
+            background: #444;
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 15px;
-            margin-top: 8px;
+            border-radius: 10px;
             font-weight: bold;
+            font-size: 14px;
+        }
+        #na-selector-ui button.na-primary {
+            background: #ff0000;
+        }
+        #na-selector-ui button:disabled {
+            opacity: 0.3;
         }
         #na-selector-ui .na-selector-text {
-            font-size: 12px;
+            font-size: 11px;
             word-break: break-all;
             text-align: center;
+            margin-bottom: 10px;
+            color: #ccc;
+            max-height: 40px;
+            overflow: hidden;
         }
     `;
     document.head.appendChild(style);
 
-    var lastElement = null;
+    var currentElement = null;
     var ui = document.createElement('div');
     ui.id = 'na-selector-ui';
     ui.innerHTML = '<div class="na-selector-text">Tap an element to select</div>';
     document.body.appendChild(ui);
 
-    function onClick(e) {
-        e.preventDefault();
-        e.stopPropagation();
+    function updateSelection(el) {
+        if (!el || el.nodeType !== Node.ELEMENT_NODE) return;
 
-        if (lastElement) lastElement.classList.remove('na-highlighted');
-        e.target.classList.add('na-highlighted');
-        lastElement = e.target;
+        if (currentElement) currentElement.classList.remove('na-highlighted');
+        currentElement = el;
+        currentElement.classList.add('na-highlighted');
+        currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        var selector = getSelector(e.target);
-        ui.innerHTML = '<div class="na-selector-text">Selected: ' + selector + '</div>' +
-                       '<button id="na-confirm-btn">Remove Element</button>' +
-                       '<button id="na-cancel-btn" style="background:#555; margin-left:10px;">Cancel</button>';
+        var selector = getSelector(currentElement);
 
-        document.getElementById('na-confirm-btn').onclick = function() {
+        ui.innerHTML = `
+            <div class="na-selector-text">${selector}</div>
+            <div class="na-nav-row">
+                <button id="na-up-btn">⬆ Parent</button>
+                <button id="na-down-btn">⬇ Child</button>
+            </div>
+            <div class="na-action-row">
+                <button id="na-confirm-btn" class="na-primary">Remove</button>
+                <button id="na-cancel-btn">Cancel</button>
+            </div>
+        `;
+
+        document.getElementById('na-up-btn').disabled = !currentElement.parentElement || currentElement.parentElement === document.body.parentElement;
+        document.getElementById('na-down-btn').disabled = !currentElement.firstElementChild;
+
+        document.getElementById('na-up-btn').onclick = function(e) {
+            e.stopPropagation();
+            updateSelection(currentElement.parentElement);
+        };
+
+        document.getElementById('na-down-btn').onclick = function(e) {
+            e.stopPropagation();
+            updateSelection(currentElement.firstElementChild);
+        };
+
+        document.getElementById('na-confirm-btn').onclick = function(e) {
+            e.stopPropagation();
             if (window.NativeAlpha) {
                 window.NativeAlpha.onElementSelected(selector);
             }
             cleanup();
         };
 
-        document.getElementById('na-cancel-btn').onclick = function() {
+        document.getElementById('na-cancel-btn').onclick = function(e) {
+            e.stopPropagation();
             cleanup();
         };
+    }
+
+    function onClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        updateSelection(e.target);
     }
 
     function getSelector(el) {
@@ -96,7 +146,7 @@
     }
 
     function cleanup() {
-        if (lastElement) lastElement.classList.remove('na-highlighted');
+        if (currentElement) currentElement.classList.remove('na-highlighted');
         document.removeEventListener('click', onClick, true);
         var s = document.getElementById('na-selector-style');
         if (s) s.remove();
