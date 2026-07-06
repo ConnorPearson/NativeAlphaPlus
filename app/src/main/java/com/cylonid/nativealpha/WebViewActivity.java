@@ -137,6 +137,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private AdblockLifecycleHelper adblockLifecycleHelper;
 
     private Map<String, JSONObject> cachedSitesMap = new HashMap<>();
+    private final List<String> sessionAddedRules = new ArrayList<>();
 
     private void loadSitesConfig() {
         try {
@@ -1117,11 +1118,73 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                         .setMessage("Do you want to permanently hide elements matching:\n" + selector)
                         .setPositiveButton("Remove", (dialog, which) -> {
                             saveRemovalRule(selector);
+                            sessionAddedRules.add(selector);
                             wv.reload();
                         })
                         .setNegativeButton(android.R.string.cancel, null)
                         .show();
             });
+        }
+
+        @android.webkit.JavascriptInterface
+        public void undoLastRemoval() {
+            runOnUiThread(() -> {
+                if (sessionAddedRules.isEmpty()) {
+                    NotificationUtils.showToast(WebViewActivity.this, "No elements removed in this session");
+                    return;
+                }
+                String lastSelector = sessionAddedRules.remove(sessionAddedRules.size() - 1);
+                removeRemovalRule(lastSelector);
+                wv.reload();
+                NotificationUtils.showToast(WebViewActivity.this, "Restored: " + lastSelector);
+            });
+        }
+
+        @android.webkit.JavascriptInterface
+        public void openSettings() {
+            runOnUiThread(() -> {
+                Intent intent = new Intent(WebViewActivity.this, WebAppSettingsActivity.class);
+                intent.putExtra(Const.INTENT_WEBAPPID, webappID);
+                startActivity(intent);
+            });
+        }
+    }
+
+    private void removeRemovalRule(String selector) {
+        try {
+            String url = wv.getUrl();
+            if (url == null) return;
+            String host = Uri.parse(url).getHost();
+            if (host == null) return;
+            host = host.toLowerCase();
+
+            File internalFile = new File(getFilesDir(), "sites.json");
+            if (!internalFile.exists()) return;
+
+            String content = new String(java.nio.file.Files.readAllBytes(internalFile.toPath()), StandardCharsets.UTF_8);
+            JSONObject json = new JSONObject(content);
+            JSONObject siteConfig = json.optJSONObject(host);
+
+            if (siteConfig != null) {
+                JSONArray removeArray = siteConfig.optJSONArray("remove");
+                if (removeArray != null) {
+                    JSONArray newArray = new JSONArray();
+                    for (int i = 0; i < removeArray.length(); i++) {
+                        if (!removeArray.getString(i).equals(selector)) {
+                            newArray.put(removeArray.getString(i));
+                        }
+                    }
+                    siteConfig.put("remove", newArray);
+                    json.put(host, siteConfig);
+
+                    try (FileOutputStream fos = new FileOutputStream(internalFile)) {
+                        fos.write(json.toString(2).getBytes(StandardCharsets.UTF_8));
+                    }
+                    cachedSitesMap.put(host, siteConfig);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("NativeAlpha", "Error removing rule", e);
         }
     }
 

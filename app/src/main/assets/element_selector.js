@@ -29,6 +29,13 @@
             border: 1px solid rgba(255,255,255,0.15);
             user-select: none;
         }
+        #na-selector-ui .na-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
         #na-selector-ui .na-nav-grid {
             display: grid;
             grid-template-areas:
@@ -57,9 +64,15 @@
         }
         #na-selector-ui button.na-primary {
             background: #ff3b30;
-            padding: 12px 24px;
-            width: 100%;
+            padding: 12px;
+            flex: 2;
             font-size: 15px;
+            border-radius: 14px;
+        }
+        #na-selector-ui button.na-undo {
+            background: #444;
+            flex: 1;
+            font-size: 18px;
             border-radius: 14px;
         }
         #na-selector-ui button.na-secondary {
@@ -82,19 +95,29 @@
             word-break: break-all;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
-            max-height: 60px;
+            max-height: 50px;
             overflow-y: auto;
         }
         #na-selector-ui .na-tag-badge {
             display: inline-block;
             background: #ff3b30;
             color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 2px 8px;
+            border-radius: 6px;
             font-weight: bold;
-            margin-bottom: 4px;
-            font-size: 10px;
+            font-size: 11px;
             text-transform: uppercase;
+        }
+        #na-selector-ui .na-settings-cog {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.7;
+        }
+        #na-selector-ui .na-action-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
         }
     `;
     document.head.appendChild(style);
@@ -122,13 +145,26 @@
         var selector = getSelector(currentElement);
         var tagName = currentElement.tagName.toLowerCase();
 
-        // Clear UI and rebuild without innerHTML to avoid TrustedHTML issues
         while (ui.firstChild) ui.removeChild(ui.firstChild);
+
+        var header = document.createElement('div');
+        header.className = 'na-header';
 
         var badge = document.createElement('div');
         badge.className = 'na-tag-badge';
         badge.textContent = tagName;
-        ui.appendChild(badge);
+        header.appendChild(badge);
+
+        var cog = document.createElement('div');
+        cog.className = 'na-settings-cog';
+        cog.textContent = '⚙️';
+        cog.onclick = function(e) {
+            e.stopPropagation();
+            if (window.NativeAlpha) window.NativeAlpha.openSettings();
+        };
+        header.appendChild(cog);
+
+        ui.appendChild(header);
 
         var info = document.createElement('div');
         info.className = 'na-selector-info';
@@ -164,8 +200,20 @@
         prevBtn.disabled = !currentElement.previousElementSibling;
         nextBtn.disabled = !currentElement.nextElementSibling;
 
+        var actionRow = document.createElement('div');
+        actionRow.className = 'na-action-row';
+
+        var undoBtn = document.createElement('button');
+        undoBtn.className = 'na-undo';
+        undoBtn.textContent = '↩️';
+        undoBtn.title = 'Undo last removal';
+        undoBtn.onclick = function(e) {
+            e.stopPropagation();
+            if (window.NativeAlpha) window.NativeAlpha.undoLastRemoval();
+        };
+        actionRow.appendChild(undoBtn);
+
         var confirmBtn = document.createElement('button');
-        confirmBtn.id = 'na-confirm-btn';
         confirmBtn.className = 'na-primary';
         confirmBtn.textContent = 'Remove Selected';
         confirmBtn.onclick = function(e) {
@@ -175,12 +223,13 @@
             }
             cleanup();
         };
-        ui.appendChild(confirmBtn);
+        actionRow.appendChild(confirmBtn);
+
+        ui.appendChild(actionRow);
 
         var cancelBtn = document.createElement('button');
-        cancelBtn.id = 'na-cancel-btn';
         cancelBtn.className = 'na-secondary';
-        cancelBtn.textContent = 'Cancel';
+        cancelBtn.textContent = 'Cancel Selection';
         cancelBtn.onclick = function(e) {
             e.stopPropagation();
             cleanup();
@@ -190,7 +239,6 @@
 
     function onClick(e) {
         if (ui.contains(e.target)) return;
-
         e.preventDefault();
         e.stopPropagation();
         updateSelection(e.target);
