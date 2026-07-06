@@ -82,18 +82,24 @@
         #na-selector-ui button#na-up-btn { grid-area: up; }
         #na-selector-ui button#na-down-btn { grid-area: down; }
 
+        #na-selector-ui .na-action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
         #na-selector-ui button.na-primary {
             background: #ff3b30;
             padding: 12px;
-            flex: 2;
+            grid-column: span 2;
             font-size: 15px;
             border-radius: 14px;
         }
         #na-selector-ui button.na-undo {
             background: #444;
-            flex: 1;
-            font-size: 18px;
+            font-size: 14px;
             border-radius: 14px;
+            padding: 12px;
         }
         #na-selector-ui button.na-secondary {
             background: transparent;
@@ -135,11 +141,6 @@
             padding: 4px;
             opacity: 0.7;
             flex-shrink: 0;
-        }
-        #na-selector-ui .na-action-row {
-            display: flex;
-            gap: 10px;
-            width: 100%;
         }
     `;
     document.head.appendChild(style);
@@ -235,7 +236,7 @@
 
         var undoBtn = document.createElement('button');
         undoBtn.className = 'na-undo';
-        undoBtn.textContent = '↩️';
+        undoBtn.textContent = 'Undo';
         undoBtn.onclick = function(e) {
             e.stopPropagation();
             if (window.NativeAlpha) window.NativeAlpha.undoLastRemoval();
