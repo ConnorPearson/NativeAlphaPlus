@@ -3,29 +3,30 @@
     style.id = 'na-selector-style';
     style.textContent = `
         .na-highlighted {
-            outline: 3px solid #ff0000 !important;
-            outline-offset: -3px !important;
-            background-color: rgba(255, 0, 0, 0.2) !important;
-            transition: all 0.1s ease-out !important;
+            outline: 4px solid #ff0000 !important;
+            outline-offset: -4px !important;
+            background-color: rgba(255, 0, 0, 0.25) !important;
+            transition: all 0.15s ease-out !important;
+            box-shadow: inset 0 0 20px rgba(255,0,0,0.3) !important;
         }
         #na-selector-ui {
             position: fixed;
-            bottom: 16px;
+            bottom: 24px;
             left: 50%;
             transform: translateX(-50%);
             background: #1a1a1a;
             color: #ffffff;
-            padding: 10px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 16px;
             z-index: 2147483647;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-            max-width: 80%;
-            width: 260px;
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            max-width: 85%;
+            width: 320px;
+            border: 1px solid rgba(255,255,255,0.15);
             user-select: none;
         }
         #na-selector-ui .na-header {
@@ -33,88 +34,95 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 12px;
         }
         #na-selector-ui .na-nav-grid {
             display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
             grid-template-areas:
-                ". up ."
-                "prev . next"
-                ". down .";
-            gap: 4px;
-            margin-bottom: 10px;
+                "prev up next"
+                "prev down next";
+            gap: 8px;
+            margin-bottom: 16px;
+            width: 100%;
         }
         #na-selector-ui button {
             background: #333;
             color: white;
             border: none;
-            padding: 6px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 10px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 36px;
         }
         #na-selector-ui button:active {
             background: #444;
             transform: scale(0.95);
         }
+        #na-selector-ui button#na-prev-btn { grid-area: prev; height: 100%; font-size: 18px; }
+        #na-selector-ui button#na-next-btn { grid-area: next; height: 100%; font-size: 18px; }
+        #na-selector-ui button#na-up-btn { grid-area: up; }
+        #na-selector-ui button#na-down-btn { grid-area: down; }
+
         #na-selector-ui button.na-primary {
             background: #ff3b30;
-            padding: 10px;
-            flex: 3;
-            font-size: 13px;
-            border-radius: 10px;
+            padding: 12px;
+            flex: 2;
+            font-size: 15px;
+            border-radius: 14px;
         }
         #na-selector-ui button.na-undo {
             background: #444;
             flex: 1;
-            font-size: 16px;
-            border-radius: 10px;
+            font-size: 18px;
+            border-radius: 14px;
         }
         #na-selector-ui button.na-secondary {
             background: transparent;
             color: #888;
-            margin-top: 6px;
-            font-size: 11px;
+            margin-top: 8px;
+            font-size: 12px;
         }
         #na-selector-ui button:disabled {
-            opacity: 0.1;
+            opacity: 0.15;
         }
         #na-selector-ui .na-selector-info {
             width: 100%;
-            background: rgba(255,255,255,0.04);
-            padding: 6px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 10px;
-            color: #bbb;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 11px;
+            color: #aaa;
             word-break: break-all;
             text-align: center;
-            max-height: 40px;
+            border: 1px solid rgba(255,255,255,0.05);
+            max-height: 50px;
             overflow-y: auto;
         }
         #na-selector-ui .na-tag-badge {
             display: inline-block;
             background: #ff3b30;
             color: white;
-            padding: 1px 6px;
-            border-radius: 4px;
+            padding: 2px 8px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 11px;
             text-transform: uppercase;
         }
         #na-selector-ui .na-settings-cog {
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
-            padding: 2px;
-            opacity: 0.6;
+            padding: 4px;
+            opacity: 0.7;
         }
         #na-selector-ui .na-action-row {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             width: 100%;
         }
     `;
@@ -126,7 +134,7 @@
 
     var initialMsg = document.createElement('div');
     initialMsg.style.color = '#888';
-    initialMsg.style.fontSize = '12px';
+    initialMsg.style.fontSize = '14px';
     initialMsg.textContent = 'Tap an element to hide';
     ui.appendChild(initialMsg);
 
@@ -187,10 +195,10 @@
             return btn;
         }
 
-        createBtn('na-up-btn', '▲ Up', 'up', () => updateSelection(currentElement.parentElement, currentElement));
         createBtn('na-prev-btn', '◀', 'prev', () => updateSelection(currentElement.previousElementSibling));
-        createBtn('na-next-btn', '▶', 'next', () => updateSelection(currentElement.nextElementSibling));
+        createBtn('na-up-btn', '▲ Up', 'up', () => updateSelection(currentElement.parentElement, currentElement));
         createBtn('na-down-btn', '▼ Down', 'down', () => updateSelection(currentElement._naLastChild || currentElement.firstElementChild));
+        createBtn('na-next-btn', '▶', 'next', () => updateSelection(currentElement.nextElementSibling));
 
         var parent = currentElement.parentElement;
         var hasParent = parent && parent !== document.documentElement && parent !== document.body.parentElement;
@@ -213,7 +221,7 @@
 
         var confirmBtn = document.createElement('button');
         confirmBtn.className = 'na-primary';
-        confirmBtn.textContent = 'Remove';
+        confirmBtn.textContent = 'Remove Selected';
         confirmBtn.onclick = function(e) {
             e.stopPropagation();
             if (window.NativeAlpha) {
