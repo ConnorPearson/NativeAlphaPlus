@@ -3,61 +3,96 @@
     style.id = 'na-selector-style';
     style.textContent = `
         .na-highlighted {
-            outline: 3px solid #ff0000 !important;
-            outline-offset: -3px !important;
-            background-color: rgba(255, 0, 0, 0.3) !important;
-            transition: all 0.2s ease !important;
+            outline: 4px solid #ff0000 !important;
+            outline-offset: -4px !important;
+            background-color: rgba(255, 0, 0, 0.25) !important;
+            transition: all 0.15s ease-out !important;
+            box-shadow: inset 0 0 20px rgba(255,0,0,0.3) !important;
         }
         #na-selector-ui {
             position: fixed;
-            bottom: 20px;
+            bottom: 24px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.95);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 20px;
-            z-index: 1000000;
-            font-family: sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 16px;
+            border-radius: 16px;
+            z-index: 2147483647;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            max-width: 90%;
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            max-width: 85%;
+            width: 320px;
+            border: 1px solid rgba(255,255,255,0.15);
+            user-select: none;
         }
-        #na-selector-ui .na-nav-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        #na-selector-ui .na-action-row {
-            display: flex;
-            gap: 10px;
+        #na-selector-ui .na-nav-grid {
+            display: grid;
+            grid-template-areas:
+                ". up ."
+                "prev . next"
+                ". down .";
+            gap: 8px;
+            margin-bottom: 16px;
         }
         #na-selector-ui button {
-            background: #444;
+            background: #333;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 12px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+        }
+        #na-selector-ui button:active {
+            background: #444;
+            transform: scale(0.95);
         }
         #na-selector-ui button.na-primary {
-            background: #ff0000;
+            background: #ff3b30;
+            padding: 12px 24px;
+            width: 100%;
+            font-size: 15px;
+            border-radius: 14px;
+        }
+        #na-selector-ui button.na-secondary {
+            background: transparent;
+            color: #888;
+            margin-top: 8px;
+            font-size: 12px;
         }
         #na-selector-ui button:disabled {
-            opacity: 0.3;
+            opacity: 0.15;
         }
-        #na-selector-ui .na-selector-text {
+        #na-selector-ui .na-selector-info {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 16px;
             font-size: 11px;
+            color: #aaa;
             word-break: break-all;
             text-align: center;
-            margin-bottom: 10px;
-            color: #ccc;
-            max-height: 40px;
-            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        #na-selector-ui .na-tag-badge {
+            display: inline-block;
+            background: #ff3b30;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
         }
     `;
     document.head.appendChild(style);
@@ -65,11 +100,11 @@
     var currentElement = null;
     var ui = document.createElement('div');
     ui.id = 'na-selector-ui';
-    ui.innerHTML = '<div class="na-selector-text">Tap an element to select</div>';
+    ui.innerHTML = '<div style="color:#888; font-size: 14px;">Tap an element to hide</div>';
     document.body.appendChild(ui);
 
     function updateSelection(el) {
-        if (!el || el.nodeType !== Node.ELEMENT_NODE) return;
+        if (!el || el.nodeType !== Node.ELEMENT_NODE || el === ui) return;
 
         if (currentElement) currentElement.classList.remove('na-highlighted');
         currentElement = el;
@@ -77,21 +112,29 @@
         currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         var selector = getSelector(currentElement);
+        var tagName = currentElement.tagName.toLowerCase();
 
         ui.innerHTML = `
-            <div class="na-selector-text">${selector}</div>
-            <div class="na-nav-row">
-                <button id="na-up-btn">⬆ Parent</button>
-                <button id="na-down-btn">⬇ Child</button>
+            <div class="na-tag-badge">${tagName}</div>
+            <div class="na-selector-info">${selector}</div>
+            <div class="na-nav-grid">
+                <button id="na-up-btn" style="grid-area: up">▲ Parent</button>
+                <button id="na-prev-btn" style="grid-area: prev">◀</button>
+                <button id="na-next-btn" style="grid-area: next">▶</button>
+                <button id="na-down-btn" style="grid-area: down">▼ Child</button>
             </div>
-            <div class="na-action-row">
-                <button id="na-confirm-btn" class="na-primary">Remove</button>
-                <button id="na-cancel-btn">Cancel</button>
-            </div>
+            <button id="na-confirm-btn" class="na-primary">Remove Selected</button>
+            <button id="na-cancel-btn" class="na-secondary">Cancel</button>
         `;
 
-        document.getElementById('na-up-btn').disabled = !currentElement.parentElement || currentElement.parentElement === document.body.parentElement;
+        // Check availability of adjacent nodes
+        var parent = currentElement.parentElement;
+        var hasParent = parent && parent !== document.documentElement && parent !== document.body.parentElement;
+
+        document.getElementById('na-up-btn').disabled = !hasParent;
         document.getElementById('na-down-btn').disabled = !currentElement.firstElementChild;
+        document.getElementById('na-prev-btn').disabled = !currentElement.previousElementSibling;
+        document.getElementById('na-next-btn').disabled = !currentElement.nextElementSibling;
 
         document.getElementById('na-up-btn').onclick = function(e) {
             e.stopPropagation();
@@ -101,6 +144,16 @@
         document.getElementById('na-down-btn').onclick = function(e) {
             e.stopPropagation();
             updateSelection(currentElement.firstElementChild);
+        };
+
+        document.getElementById('na-prev-btn').onclick = function(e) {
+            e.stopPropagation();
+            updateSelection(currentElement.previousElementSibling);
+        };
+
+        document.getElementById('na-next-btn').onclick = function(e) {
+            e.stopPropagation();
+            updateSelection(currentElement.nextElementSibling);
         };
 
         document.getElementById('na-confirm-btn').onclick = function(e) {
@@ -118,6 +171,9 @@
     }
 
     function onClick(e) {
+        // Prevent clicking inside our own UI from triggering selection
+        if (ui.contains(e.target)) return;
+
         e.preventDefault();
         e.stopPropagation();
         updateSelection(e.target);
