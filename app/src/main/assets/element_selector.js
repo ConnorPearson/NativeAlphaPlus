@@ -35,6 +35,20 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
+            gap: 8px;
+        }
+        #na-selector-ui .na-element-id {
+            flex: 1;
+            font-size: 12px;
+            color: #ccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+            font-family: monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
         #na-selector-ui .na-nav-grid {
             display: grid;
@@ -113,12 +127,14 @@
             font-weight: bold;
             font-size: 11px;
             text-transform: uppercase;
+            flex-shrink: 0;
         }
         #na-selector-ui .na-settings-cog {
             font-size: 20px;
             cursor: pointer;
             padding: 4px;
             opacity: 0.7;
+            flex-shrink: 0;
         }
         #na-selector-ui .na-action-row {
             display: flex;
@@ -152,6 +168,7 @@
 
         var selector = getSelector(currentElement);
         var tagName = currentElement.tagName.toLowerCase();
+        var elementId = currentElement.id ? '#' + currentElement.id : '';
 
         while (ui.firstChild) ui.removeChild(ui.firstChild);
 
@@ -162,6 +179,12 @@
         badge.className = 'na-tag-badge';
         badge.textContent = tagName;
         header.appendChild(badge);
+
+        var idDisplay = document.createElement('div');
+        idDisplay.className = 'na-element-id';
+        idDisplay.textContent = elementId;
+        if (!elementId) idDisplay.style.visibility = 'hidden';
+        header.appendChild(idDisplay);
 
         var cog = document.createElement('div');
         cog.className = 'na-settings-cog';
