@@ -37,7 +37,7 @@
             margin-bottom: 12px;
             gap: 10px;
         }
-        #na-selector-ui .na-element-id {
+        #na-selector-ui .na-selector-path {
             flex: 1;
             font-size: 13px;
             color: #ffffff;
@@ -49,6 +49,7 @@
             background: rgba(255,255,255,0.1);
             padding: 4px 8px;
             border-radius: 6px;
+            font-family: monospace;
         }
         #na-selector-ui .na-nav-grid {
             display: grid;
@@ -109,20 +110,6 @@
         #na-selector-ui button:disabled {
             opacity: 0.15;
         }
-        #na-selector-ui .na-selector-info {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-            font-size: 11px;
-            color: #aaa;
-            word-break: break-all;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-            max-height: 50px;
-            overflow-y: auto;
-        }
         #na-selector-ui .na-tag-badge {
             display: inline-block;
             background: #ff3b30;
@@ -181,7 +168,6 @@
 
         var selector = getSelector(currentElement);
         var tagName = currentElement.tagName.toLowerCase();
-        var elementId = currentElement.id ? '#' + currentElement.id : '';
 
         while (ui.firstChild) ui.removeChild(ui.firstChild);
 
@@ -193,14 +179,13 @@
         badge.textContent = tagName;
         header.appendChild(badge);
 
-        var idDisplay = document.createElement('div');
-        idDisplay.className = 'na-element-id';
-        idDisplay.textContent = elementId || selector.split(' > ').pop();
-        header.appendChild(idDisplay);
+        var pathDisplay = document.createElement('div');
+        pathDisplay.className = 'na-selector-path';
+        pathDisplay.textContent = selector;
+        header.appendChild(pathDisplay);
 
         var cog = document.createElement('div');
         cog.className = 'na-settings-cog';
-        // SVG representation of ic_settings_outline_24.xml
         cog.innerHTML = `<svg viewBox="0 0 24 24">
             <path d="M12,12m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
             <path d="M19.4,15a1.65,1.65 0,0 0,0.33 1.82l0.06,0.06a2,2 0,0 1,0 2.83 2,2 0,0 1,-2.83 0l-0.06,-0.06a1.65,1.65 0,0 0,-1.82 -0.33 1.65,1.65 0,0 0,-1 1.51V21a2,2 0,0 1,-2 2 2,2 0,0 1,-2 -2v-0.09A1.65,1.65 0,0 0,9 19.4a1.65,1.65 0,0 0,-1.82 0.33l-0.06,0.06a2,2 0,0 1,-2.83 0 2,2 0,0 1,0 -2.83l0.06,-0.06a1.65,1.65 0,0 0,0.33 -1.82 1.65,1.65 0,0 0,-1.51 -1H3a2,2 0,0 1,-2 -2 2,2 0,0 1,2 -2h0.09A1.65,1.65 0,0 0,4.6 9a1.65,1.65 0,0 0,-0.33 -1.82l-0.06,-0.06a2,2 0,0 1,0 -2.83 2,2 0,0 1,2.83 0l0.06,0.06a1.65,1.65 0,0 0,1.82 0.33H9a1.65,1.65 0,0 0,1 -1.51V3a2,2 0,0 1,2 -2 2,2 0,0 1,2 2v0.09a1.65,1.65 0,0 0,1 1.51 1.65,1.65 0,0 0,1.82 -0.33l0.06,-0.06a2,2 0,0 1,2.83 0 2,2 0,0 1,0 2.83l-0.06,0.06a1.65,1.65 0,0 0,-0.33 1.82V9a1.65,1.65 0,0 0,1.51 1H21a2,2 0,0 1,2 2 2,2 0,0 1,-2 2h-0.09a1.65,1.65 0,0 0,-1.51 1z" />
@@ -211,11 +196,6 @@
         };
         header.appendChild(cog);
         ui.appendChild(header);
-
-        var info = document.createElement('div');
-        info.className = 'na-selector-info';
-        info.textContent = selector;
-        ui.appendChild(info);
 
         var navGrid = document.createElement('div');
         navGrid.className = 'na-nav-grid';
