@@ -229,6 +229,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
         wv = findViewById(R.id.webview);
         wv.setBackgroundColor(Color.BLACK);
+        wv.addJavascriptInterface(new WebAppInterface(), "NativeAlpha");
         progressBar = findViewById(R.id.progressBar);
 
         List<AdblockConfig> adblockConfigs = DataManager.getInstance().getSettings().getGlobalWebApp().getAdBlockSettings();
@@ -237,6 +238,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             wv = findViewById(R.id.adblockwebview);
             wv.setVisibility(View.VISIBLE);
             wv.setBackgroundColor(Color.BLACK);
+            wv.addJavascriptInterface(new WebAppInterface(), "NativeAlpha");
 
             adFilter.setupWebView(wv);
             adblockLifecycleHelper.beforeAdblockOperation(() -> adblockProviderApiHelper.synchronizeAdblockProviderWithSettings(adblockConfigs));
@@ -616,6 +618,9 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                             .setChooserTitle("Share URL")
                             .setText(wv.getUrl())
                             .startChooser();
+                    return true;
+                case R.id.cmItemRemoveElements:
+                    enterElementSelectionMode();
                     return true;
                 case R.id.cmItemCloseWebApp:
                     finishAndRemoveTask();
@@ -1089,6 +1094,78 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             Log.e("NativeAlpha", "Error in applySiteRules", e);
         }
     }
+    private void enterElementSelectionMode() {
+        try {
+            InputStream is = getAssets().open("element_selector.js");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            String js = new String(buffer, StandardCharsets.UTF_8);
+            wv.evaluateJavascript(js, null);
+        } catch (IOException e) {
+            Log.e("NativeAlpha", "Error loading element_selector.js", e);
+        }
+    }
+
+    private class WebAppInterface {
+        @android.webkit.JavascriptInterface
+        public void onElementSelected(String selector) {
+            runOnUiThread(() -> {
+                new MaterialAlertDialogBuilder(WebViewActivity.this, R.style.AppTheme_AlertDialog)
+                        .setTitle("Remove Element?")
+                        .setMessage("Do you want to permanently hide elements matching:\n" + selector)
+                        .setPositiveButton("Remove", (dialog, which) -> {
+                            saveRemovalRule(selector);
+                            wv.reload();
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+            });
+        }
+    }
+
+    private void saveRemovalRule(String selector) {
+        try {
+            String url = wv.getUrl();
+            if (url == null) return;
+            String host = Uri.parse(url).getHost();
+            if (host == null) return;
+            host = host.toLowerCase();
+
+            File internalFile = new File(getFilesDir(), "sites.json");
+            String content = "";
+            if (internalFile.exists()) {
+                FileInputStream fis = new FileInputStream(internalFile);
+                byte[] data = new byte[(int) internalFile.length()];
+                fis.read(data);
+                fis.close();
+                content = new String(data, StandardCharsets.UTF_8);
+            }
+
+            JSONObject json = content.isEmpty() ? new JSONObject() : new JSONObject(content);
+
+            JSONObject siteConfig = json.optJSONObject(host);
+            if (siteConfig == null) siteConfig = new JSONObject();
+
+            JSONArray removeArray = siteConfig.optJSONArray("remove");
+            if (removeArray == null) removeArray = new JSONArray();
+            removeArray.put(selector);
+
+            siteConfig.put("remove", removeArray);
+            json.put(host, siteConfig);
+
+            FileOutputStream fos = new FileOutputStream(internalFile);
+            fos.write(json.toString(2).getBytes(StandardCharsets.UTF_8));
+            fos.close();
+
+            // Update cache
+            cachedSitesMap.put(host, siteConfig);
+        } catch (Exception e) {
+            Log.e("NativeAlpha", "Error saving removal rule", e);
+        }
+    }
+
     private class CustomBrowser extends WebViewClient {
 
         private AdFilter adFilter = AdFilter.Companion.get();

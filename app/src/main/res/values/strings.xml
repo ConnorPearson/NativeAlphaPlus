@@ -142,6 +142,7 @@
     <string name="forward">Forward</string>
     <string name="copy_url">Copy URL</string>
     <string name="share">Share</string>
+    <string name="remove_elements">Remove elements</string>
     <string name="reload">Reload</string>
     <string name="activate_two_finger_zoom">Enable Pinch-To-Zoom</string>
     <string name="webapp_section_access_restriction">Access Restriction</string>

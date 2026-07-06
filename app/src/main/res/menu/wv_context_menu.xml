@@ -27,6 +27,10 @@
             android:id="@+id/cmItemShareUrl"
             android:iconTint="?attr/colorOnSurface"
             android:icon="@drawable/ic_baseline_share_24"/>
+        <item android:title="@string/remove_elements"
+            android:id="@+id/cmItemRemoveElements"
+            android:iconTint="?attr/colorOnSurface"
+            android:icon="@drawable/ic_delete_black_24dp" />
         <item android:title="@string/reload"
             android:id="@+id/cmItemReload"
             android:iconTint="?attr/colorOnSurface"
