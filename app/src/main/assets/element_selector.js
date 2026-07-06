@@ -35,20 +35,20 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            gap: 8px;
+            gap: 10px;
         }
         #na-selector-ui .na-element-id {
             flex: 1;
-            font-size: 12px;
-            color: #ccc;
+            font-size: 13px;
+            color: #ffffff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: center;
-            font-family: monospace;
-            background: rgba(255,255,255,0.05);
-            padding: 2px 6px;
-            border-radius: 4px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
         }
         #na-selector-ui .na-nav-grid {
             display: grid;
@@ -84,14 +84,13 @@
 
         #na-selector-ui .na-action-row {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 2.5fr;
             gap: 10px;
             width: 100%;
         }
         #na-selector-ui button.na-primary {
             background: #ff3b30;
             padding: 12px;
-            grid-column: span 2;
             font-size: 15px;
             border-radius: 14px;
         }
@@ -136,11 +135,24 @@
             flex-shrink: 0;
         }
         #na-selector-ui .na-settings-cog {
-            font-size: 20px;
             cursor: pointer;
             padding: 4px;
-            opacity: 0.7;
+            opacity: 0.8;
             flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #na-selector-ui .na-settings-cog svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
     `;
     document.head.appendChild(style);
@@ -183,13 +195,16 @@
 
         var idDisplay = document.createElement('div');
         idDisplay.className = 'na-element-id';
-        idDisplay.textContent = elementId;
-        if (!elementId) idDisplay.style.visibility = 'hidden';
+        idDisplay.textContent = elementId || selector.split(' > ').pop();
         header.appendChild(idDisplay);
 
         var cog = document.createElement('div');
         cog.className = 'na-settings-cog';
-        cog.textContent = '⚙️';
+        // SVG representation of ic_settings_outline_24.xml
+        cog.innerHTML = `<svg viewBox="0 0 24 24">
+            <path d="M12,12m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+            <path d="M19.4,15a1.65,1.65 0,0 0,0.33 1.82l0.06,0.06a2,2 0,0 1,0 2.83 2,2 0,0 1,-2.83 0l-0.06,-0.06a1.65,1.65 0,0 0,-1.82 -0.33 1.65,1.65 0,0 0,-1 1.51V21a2,2 0,0 1,-2 2 2,2 0,0 1,-2 -2v-0.09A1.65,1.65 0,0 0,9 19.4a1.65,1.65 0,0 0,-1.82 0.33l-0.06,0.06a2,2 0,0 1,-2.83 0 2,2 0,0 1,0 -2.83l0.06,-0.06a1.65,1.65 0,0 0,0.33 -1.82 1.65,1.65 0,0 0,-1.51 -1H3a2,2 0,0 1,-2 -2 2,2 0,0 1,2 -2h0.09A1.65,1.65 0,0 0,4.6 9a1.65,1.65 0,0 0,-0.33 -1.82l-0.06,-0.06a2,2 0,0 1,0 -2.83 2,2 0,0 1,2.83 0l0.06,0.06a1.65,1.65 0,0 0,1.82 0.33H9a1.65,1.65 0,0 0,1 -1.51V3a2,2 0,0 1,2 -2 2,2 0,0 1,2 2v0.09a1.65,1.65 0,0 0,1 1.51 1.65,1.65 0,0 0,1.82 -0.33l0.06,-0.06a2,2 0,0 1,2.83 0 2,2 0,0 1,0 2.83l-0.06,0.06a1.65,1.65 0,0 0,-0.33 1.82V9a1.65,1.65 0,0 0,1.51 1H21a2,2 0,0 1,2 2 2,2 0,0 1,-2 2h-0.09a1.65,1.65 0,0 0,-1.51 1z" />
+        </svg>`;
         cog.onclick = function(e) {
             e.stopPropagation();
             if (window.NativeAlpha) window.NativeAlpha.openSettings();
