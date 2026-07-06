@@ -134,10 +134,16 @@
 
     document.body.appendChild(ui);
 
-    function updateSelection(el) {
+    function updateSelection(el, fromChild) {
         if (!el || el.nodeType !== Node.ELEMENT_NODE || ui.contains(el)) return;
 
         if (currentElement) currentElement.classList.remove('na-highlighted');
+
+        // Remember where we came from for better back-and-forth navigation
+        if (fromChild) {
+            el._naLastChild = fromChild;
+        }
+
         currentElement = el;
         currentElement.classList.add('na-highlighted');
         currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -188,17 +194,17 @@
             return btn;
         }
 
-        var upBtn = createBtn('na-up-btn', '▲ Parent', 'up', () => updateSelection(currentElement.parentElement));
-        var prevBtn = createBtn('na-prev-btn', '◀', 'prev', () => updateSelection(currentElement.previousElementSibling));
-        var nextBtn = createBtn('na-next-btn', '▶', 'next', () => updateSelection(currentElement.nextElementSibling));
-        var downBtn = createBtn('na-down-btn', '▼ Child', 'down', () => updateSelection(currentElement.firstElementChild));
+        createBtn('na-up-btn', '▲ Parent', 'up', () => updateSelection(currentElement.parentElement, currentElement));
+        createBtn('na-prev-btn', '◀', 'prev', () => updateSelection(currentElement.previousElementSibling));
+        createBtn('na-next-btn', '▶', 'next', () => updateSelection(currentElement.nextElementSibling));
+        createBtn('na-down-btn', '▼ Child', 'down', () => updateSelection(currentElement._naLastChild || currentElement.firstElementChild));
 
         var parent = currentElement.parentElement;
         var hasParent = parent && parent !== document.documentElement && parent !== document.body.parentElement;
-        upBtn.disabled = !hasParent;
-        downBtn.disabled = !currentElement.firstElementChild;
-        prevBtn.disabled = !currentElement.previousElementSibling;
-        nextBtn.disabled = !currentElement.nextElementSibling;
+        document.getElementById('na-up-btn').disabled = !hasParent;
+        document.getElementById('na-down-btn').disabled = !currentElement.firstElementChild;
+        document.getElementById('na-prev-btn').disabled = !currentElement.previousElementSibling;
+        document.getElementById('na-next-btn').disabled = !currentElement.nextElementSibling;
 
         var actionRow = document.createElement('div');
         actionRow.className = 'na-action-row';
