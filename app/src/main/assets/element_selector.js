@@ -14,9 +14,9 @@
             bottom: 24px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(26, 26, 26, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(20, 20, 20, 0.65) !important;
+            backdrop-filter: blur(15px) !important;
+            -webkit-backdrop-filter: blur(15px) !important;
             color: #ffffff;
             padding: 16px;
             border-radius: 16px;
@@ -28,7 +28,7 @@
             box-shadow: 0 12px 40px rgba(0,0,0,0.6);
             max-width: 85%;
             width: 320px;
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.1);
             user-select: none;
         }
         #na-selector-ui .na-header {
@@ -46,12 +46,14 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            text-align: center;
+            text-align: left;
             font-weight: 500;
             background: rgba(255,255,255,0.1);
             padding: 4px 8px;
             border-radius: 6px;
             font-family: monospace;
+            direction: rtl;
+            unicode-bidi: plaintext;
         }
         #na-selector-ui .na-nav-grid {
             display: grid;
@@ -65,7 +67,7 @@
             width: 100%;
         }
         #na-selector-ui button {
-            background: rgba(51, 51, 51, 0.8);
+            background: rgba(60, 60, 60, 0.6);
             color: white;
             border: none;
             padding: 8px;
@@ -77,7 +79,7 @@
             justify-content: center;
         }
         #na-selector-ui button:active {
-            background: #444;
+            background: rgba(100, 100, 100, 0.7);
             transform: scale(0.95);
         }
         #na-selector-ui button#na-prev-btn { grid-area: prev; height: 100%; font-size: 18px; }
@@ -92,13 +94,13 @@
             width: 100%;
         }
         #na-selector-ui button.na-primary {
-            background: rgba(255, 59, 48, 0.9);
+            background: rgba(255, 59, 48, 0.8);
             padding: 12px;
             font-size: 15px;
             border-radius: 14px;
         }
         #na-selector-ui button.na-undo {
-            background: rgba(68, 68, 68, 0.8);
+            background: rgba(80, 80, 80, 0.7);
             font-size: 14px;
             border-radius: 14px;
             padding: 12px;
@@ -110,11 +112,11 @@
             font-size: 12px;
         }
         #na-selector-ui button:disabled {
-            opacity: 0.15;
+            opacity: 0.1;
         }
         #na-selector-ui .na-tag-badge {
             display: inline-block;
-            background: #ff3b30;
+            background: rgba(255, 59, 48, 0.9);
             color: white;
             padding: 2px 8px;
             border-radius: 6px;
