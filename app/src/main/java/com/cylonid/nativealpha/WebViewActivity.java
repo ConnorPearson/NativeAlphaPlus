@@ -158,16 +158,50 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             is.close();
 
             JSONObject json = new JSONObject(new String(buffer, StandardCharsets.UTF_8));
+            json = normalizeJsonKeys(json); // Migrate legacy keys to hostnames
             cachedSitesMap.clear();
 
             for (Iterator<String> it = json.keys(); it.hasNext(); ) {
-                String domain = it.next();
-                cachedSitesMap.put(domain.toLowerCase(), json.getJSONObject(domain));
+                String key = it.next();
+                cachedSitesMap.put(key, json.getJSONObject(key));
             }
 
         } catch (Exception e) {
             Log.e("NativeAlpha", "Error loading sites config", e);
         }
+    }
+
+    private JSONObject normalizeJsonKeys(JSONObject json) {
+        JSONObject normalized = new JSONObject();
+        try {
+            Iterator<String> keys = json.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String normalizedKey = key.toLowerCase();
+                if (normalizedKey.contains("://")) {
+                    Uri uri = Uri.parse(normalizedKey);
+                    if (uri.getHost() != null) normalizedKey = uri.getHost();
+                }
+                // Strip common prefixes for better matching
+                if (normalizedKey.startsWith("www.")) normalizedKey = normalizedKey.substring(4);
+                
+                // If multiple keys normalize to the same host, merge them
+                if (normalized.has(normalizedKey)) {
+                    JSONObject existing = normalized.getJSONObject(normalizedKey);
+                    JSONObject current = json.getJSONObject(key);
+                    Iterator<String> currentKeys = current.keys();
+                    while (currentKeys.hasNext()) {
+                        String subKey = currentKeys.next();
+                        existing.put(subKey, current.get(subKey));
+                    }
+                } else {
+                    normalized.put(normalizedKey, json.getJSONObject(key));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return normalized;
     }
 
     @Override
@@ -456,16 +490,15 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private JSONObject getSiteConfig(String url) {
         if (cachedSitesMap == null || url == null) return null;
         try {
-            String host = Uri.parse(url).getHost();
-            if (host == null) return null;
-            host = host.toLowerCase();
+            String host = Utility.getCanonicalHost(url);
+            if (host.isEmpty()) return null;
 
             JSONObject site = cachedSitesMap.get(host);
             if (site != null) return site;
 
-            // Fuzzy match: check if host ends with any key in the map (e.g., map.blitzortung.org matches blitzortung.org)
+            // Fuzzy match for other subdomains (e.g., map.blitzortung.org matches blitzortung.org)
             for (String key : cachedSitesMap.keySet()) {
-                if (host.endsWith("." + key) || key.equals(host)) {
+                if (host.endsWith("." + key)) {
                     return cachedSitesMap.get(key);
                 }
             }
@@ -1152,17 +1185,14 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
     private void removeRemovalRule(String selector) {
         try {
-            String url = wv.getUrl();
-            if (url == null) return;
-            String host = Uri.parse(url).getHost();
-            if (host == null) return;
-            host = host.toLowerCase();
+            String host = Utility.getCanonicalHost(wv.getUrl());
+            if (host.isEmpty()) return;
 
             File internalFile = new File(getFilesDir(), "sites.json");
             if (!internalFile.exists()) return;
 
             String content = new String(java.nio.file.Files.readAllBytes(internalFile.toPath()), StandardCharsets.UTF_8);
-            JSONObject json = new JSONObject(content);
+            JSONObject json = normalizeJsonKeys(new JSONObject(content));
             JSONObject siteConfig = json.optJSONObject(host);
 
             if (siteConfig != null) {
@@ -1190,24 +1220,26 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
     private void saveRemovalRule(String selector) {
         try {
-            String url = wv.getUrl();
-            if (url == null) return;
-            String host = Uri.parse(url).getHost();
-            if (host == null) return;
-            host = host.toLowerCase();
+            String host = Utility.getCanonicalHost(wv.getUrl());
+            if (host.isEmpty()) return;
 
             File internalFile = new File(getFilesDir(), "sites.json");
             String content = "";
             if (internalFile.exists()) {
                 FileInputStream fis = new FileInputStream(internalFile);
                 byte[] data = new byte[(int) internalFile.length()];
-                fis.read(data);
+                int readCount = fis.read(data);
                 fis.close();
-                content = new String(data, StandardCharsets.UTF_8);
+                content = new String(data, 0, readCount, StandardCharsets.UTF_8);
+            } else {
+                InputStream is = getAssets().open("sites.json");
+                byte[] buffer = new byte[is.available()];
+                int readCount = is.read(buffer);
+                is.close();
+                content = new String(buffer, 0, readCount, StandardCharsets.UTF_8);
             }
 
-            JSONObject json = content.isEmpty() ? new JSONObject() : new JSONObject(content);
-
+            JSONObject json = normalizeJsonKeys(new JSONObject(content));
             JSONObject siteConfig = json.optJSONObject(host);
             if (siteConfig == null) siteConfig = new JSONObject();
 
@@ -1222,7 +1254,6 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             fos.write(json.toString(2).getBytes(StandardCharsets.UTF_8));
             fos.close();
 
-            // Update cache
             cachedSitesMap.put(host, siteConfig);
         } catch (Exception e) {
             Log.e("NativeAlpha", "Error saving removal rule", e);

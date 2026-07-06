@@ -46,14 +46,12 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            text-align: left;
+            text-align: center;
             font-weight: 500;
             background: rgba(255,255,255,0.1);
             padding: 4px 8px;
             border-radius: 6px;
             font-family: monospace;
-            direction: rtl;
-            unicode-bidi: plaintext;
         }
         #na-selector-ui .na-nav-grid {
             display: grid;
@@ -275,24 +273,12 @@
 
     function getSelector(el) {
         if (el.id) return '#' + el.id;
-        var path = [];
-        while (el && el.nodeType === Node.ELEMENT_NODE) {
-            var selector = el.nodeName.toLowerCase();
-            if (el.id) {
-                selector += '#' + el.id;
-                path.unshift(selector);
-                break;
-            } else {
-                var sib = el, nth = 1;
-                while (sib = sib.previousElementSibling) {
-                    if (sib.nodeName.toLowerCase() == selector) nth++;
-                }
-                if (nth != 1) selector += ":nth-of-type(" + nth + ")";
-            }
-            path.unshift(selector);
-            el = el.parentNode;
+        let s = el.tagName.toLowerCase();
+        if (el.className && typeof el.className === 'string') {
+            let cls = el.className.trim().split(/\\s+/).filter(c => c && !c.startsWith('na-'));
+            if (cls.length > 0) s += '.' + cls.join('.');
         }
-        return path.join(" > ");
+        return s;
     }
 
     function cleanup() {

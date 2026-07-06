@@ -9,6 +9,19 @@ import java.util.regex.Pattern;
 
 public final class Utility {
 
+    public static String getCanonicalHost(String url) {
+        if (url == null || url.isEmpty()) return "";
+        String host = url.toLowerCase();
+        if (host.contains("://")) {
+            android.net.Uri uri = android.net.Uri.parse(host);
+            if (uri.getHost() != null) host = uri.getHost();
+        }
+        if (host.startsWith("www.")) {
+            host = host.substring(4);
+        }
+        return host;
+    }
+
     public static void setViewAndChildrenEnabled(View view, boolean enabled) {
 
         view.setClickable(enabled);

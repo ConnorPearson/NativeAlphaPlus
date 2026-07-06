@@ -125,11 +125,13 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
     }
 
     private fun setupSiteRulesLogic(modifiedWebapp: WebApp) {
-        val host = try {
-            java.net.URL(modifiedWebapp.baseUrl).host.lowercase()
-        } catch (e: Exception) {
-            ""
+        val rawUrl = modifiedWebapp.baseUrl.lowercase()
+        val host = if (rawUrl.contains("://")) {
+            android.net.Uri.parse(rawUrl).host ?: ""
+        } else {
+            android.net.Uri.parse("https://$rawUrl").host ?: rawUrl
         }
+
         if (host.isEmpty()) {
             binding.sectionSiteRules.visibility = View.GONE
             return
@@ -159,11 +161,11 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
                 JSONObject()
             }
 
-            var siteConfig = json.optJSONObject(host)
+            var siteConfig: JSONObject? = json.optJSONObject(host)
             if (siteConfig == null) {
-                // Try fuzzy match
+                // Try fuzzy match: check if host ends with key or key ends with host (e.g. m.google.com vs google.com)
                 for (key in json.keys()) {
-                    if (host.endsWith(".$key") || key == host) {
+                    if (host.endsWith(".$key") || key.endsWith(".$host") || key == host) {
                         siteConfig = json.getJSONObject(key)
                         break
                     }
@@ -171,28 +173,20 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
             }
 
             siteConfig?.let {
-                binding.txtWebAppName.setText(it.optString("title", binding.txtWebAppName.text.toString()))
+                val title = it.optString("title", "")
+                if (title.isNotEmpty()) {
+                    binding.txtWebAppName.setText(title)
+                    modifiedWebapp.title = title
+                }
                 binding.editStatusBarColor.setText(it.optString("statusBarColor", ""))
                 binding.editBottomBarColor.setText(it.optString("bottomBarColor", ""))
                 binding.editLoadingBarColor.setText(it.optString("loadingBarColor", ""))
                 
                 val removeArray = it.optJSONArray("remove")
-                val removeText = StringBuilder()
-                if (removeArray != null) {
-                    for (i in 0 until removeArray.length()) {
-                        removeText.append(removeArray.getString(i)).append("\n")
-                    }
-                }
-                binding.editDomRemoval.setText(removeText.toString().trim())
+                binding.editDomRemoval.setText(JSONArrayToString(removeArray))
 
                 val cssArray = it.optJSONArray("injectCss")
-                val cssText = StringBuilder()
-                if (cssArray != null) {
-                    for (i in 0 until cssArray.length()) {
-                        cssText.append(cssArray.getString(i)).append("\n")
-                    }
-                }
-                binding.editInjectCss.setText(cssText.toString().trim())
+                binding.editInjectCss.setText(JSONArrayToString(cssArray))
             }
         }
 
@@ -254,24 +248,40 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
                 JSONObject()
             }
 
-            val siteConfig = JSONObject()
+            // Find existing entry or create new one to preserve other fields like 'icon' or 'userAgent'
+            var keyToUse = host
+            var siteConfig = json.optJSONObject(host)
+            if (siteConfig == null) {
+                for (key in json.keys()) {
+                    if (host.endsWith(".$key") || key.endsWith(".$host") || key == host) {
+                        siteConfig = json.getJSONObject(key)
+                        keyToUse = key
+                        break
+                    }
+                }
+            }
+            
+            if (siteConfig == null) siteConfig = JSONObject()
+
             val title = binding.txtWebAppName.text.toString().trim()
             if (title.isNotEmpty()) siteConfig.put("title", title)
 
             val statusBar = binding.editStatusBarColor.text.toString().trim()
-            if (statusBar.isNotEmpty()) siteConfig.put("statusBarColor", statusBar)
+            siteConfig.put("statusBarColor", statusBar)
             
             val bottomBar = binding.editBottomBarColor.text.toString().trim()
-            if (bottomBar.isNotEmpty()) siteConfig.put("bottomBarColor", bottomBar)
+            siteConfig.put("bottomBarColor", bottomBar)
 
             val loadingBar = binding.editLoadingBarColor.text.toString().trim()
-            if (loadingBar.isNotEmpty()) siteConfig.put("loadingBarColor", loadingBar)
+            siteConfig.put("loadingBarColor", loadingBar)
 
             val removeText = binding.editDomRemoval.text.toString().trim()
             if (removeText.isNotEmpty()) {
                 val removeArray = JSONArray()
                 removeText.split("\n").forEach { if (it.trim().isNotEmpty()) removeArray.put(it.trim()) }
                 siteConfig.put("remove", removeArray)
+            } else {
+                siteConfig.remove("remove")
             }
 
             val cssText = binding.editInjectCss.text.toString().trim()
@@ -279,9 +289,11 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
                 val cssArray = JSONArray()
                 cssText.split("\n").forEach { if (it.trim().isNotEmpty()) cssArray.put(it.trim()) }
                 siteConfig.put("injectCss", cssArray)
+            } else {
+                siteConfig.remove("injectCss")
             }
 
-            json.put(host, siteConfig)
+            json.put(keyToUse, siteConfig)
             internalFile.writeText(json.toString(2), StandardCharsets.UTF_8)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -290,10 +302,11 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
 
     private fun setupSaveAndCancel(modifiedWebapp: WebApp) {
         binding.btnSave.setOnClickListener {
-            val host = try {
-                java.net.URL(modifiedWebapp.baseUrl).host.lowercase()
-            } catch (e: Exception) {
-                ""
+            val rawUrl = modifiedWebapp.baseUrl.lowercase()
+            val host = if (rawUrl.contains("://")) {
+                android.net.Uri.parse(rawUrl).host ?: ""
+            } else {
+                android.net.Uri.parse("https://$rawUrl").host ?: rawUrl
             }
             saveSiteRules(host)
 

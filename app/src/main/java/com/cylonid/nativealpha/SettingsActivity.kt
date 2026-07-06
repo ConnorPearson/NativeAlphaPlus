@@ -151,6 +151,9 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             } else {
                 val i = Intent(this@SettingsActivity, MainActivity::class.java)
 
+                val activityManager = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
+                com.cylonid.nativealpha.util.ProcessUtils.closeAllWebAppsAndProcesses(activityManager)
+
                 WebStorage.getInstance().deleteAllData()
                 CookieManager.getInstance().removeAllCookies(null)
 

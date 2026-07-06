@@ -314,6 +314,12 @@ public class DataManager {
             ObjectOutputStream oos = new ObjectOutputStream(b64os)) {
             appdata = App.getAppContext().getSharedPreferences(SHARED_PREF_KEY, MODE_PRIVATE);
             TreeMap<String, Object> shared_pref_map = new TreeMap<>(appdata.getAll());
+            
+            // Backup General Info settings
+            SharedPreferences generalInfo = App.getAppContext().getSharedPreferences(GENERAL_INFO, MODE_PRIVATE);
+            for (Map.Entry<String, ?> entry : generalInfo.getAll().entrySet()) {
+                shared_pref_map.put("GEN_INFO_" + entry.getKey(), entry.getValue());
+            }
 
             // Backup sites.json content
             File sitesFile = new File(App.getAppContext().getFilesDir(), "sites.json");
@@ -372,9 +378,23 @@ public class DataManager {
 
             if (!checksum.equals(new_checksum))
                 throw new InvalidChecksumException("Checksums between backup and restored settings do not match.");
+            
+            SharedPreferences.Editor genInfoEdit = App.getAppContext().getSharedPreferences(GENERAL_INFO, MODE_PRIVATE).edit();
+            genInfoEdit.clear();
+
             for (Map.Entry<String, ?> entry : shared_pref_map.entrySet()) {
                 Object v = entry.getValue();
                 String key = entry.getKey();
+
+                if (key.startsWith("GEN_INFO_")) {
+                    String genKey = key.substring(9);
+                    if (v instanceof Boolean) genInfoEdit.putBoolean(genKey, (Boolean) v);
+                    else if (v instanceof Float) genInfoEdit.putFloat(genKey, (Float) v);
+                    else if (v instanceof Integer) genInfoEdit.putInt(genKey, (Integer) v);
+                    else if (v instanceof Long) genInfoEdit.putLong(genKey, (Long) v);
+                    else if (v instanceof String) genInfoEdit.putString(genKey, (String) v);
+                    continue;
+                }
 
                 if ("INTERNAL_SITES_JSON".equals(key)) {
                     try {
@@ -414,6 +434,7 @@ public class DataManager {
                     prefEdit.putString(key, ((String) v));
             }
             prefEdit.apply();
+            genInfoEdit.apply();
             result = true;
 
         } catch (InvalidChecksumException | IOException | ClassNotFoundException e) {
