@@ -3,20 +3,18 @@
 ![OS](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white&style=plastic)
 ![OS](https://img.shields.io/badge/MinVersion-9.0-red)
 ![SDK](https://img.shields.io/badge/SDK-35-yellowgreen)
-[![GitHub release](https://img.shields.io/github/v/release/cylonid/NativeAlphaForAndroid?include_prereleases&color=blueviolet)](https://github.com/cylonid/NativeAlphaForAndroid/releases)
-[![Github all releases](https://img.shields.io/github/downloads/cylonid/NativeAlphaForAndroid/total?color=blue&label=GitHub%E2%87%A9&style=plastic)](https://somsubhra.github.io/github-release-stats/?username=cylonid&repository=NativeAlphaForAndroid&page=1&per_page=20)
-[![GitHub license](https://img.shields.io/github/license/cylonid/NativeAlphaForAndroid?color=orange)](https://github.com/cylonid/NativeAlphaForAndroid/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/ConnorPearson/native-alpha-plus-plus?include_prereleases&color=blueviolet)](https://github.com/ConnorPearson/native-alpha-plus-plus/releases)
+[![Github all releases](https://img.shields.io/github/downloads/ConnorPearson/native-alpha-plus-plus/total?color=blue&label=GitHub%E2%87%A9&style=plastic)](https://somsubhra.github.io/github-release-stats/?username=ConnorPearson&repository=native-alpha-plus-plus&page=1&per_page=20)
+[![GitHub license](https://img.shields.io/github/license/ConnorPearson/native-alpha-plus-plus?color=orange)](https://github.com/ConnorPearson/native-alpha-plus-plus/blob/master/LICENSE)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
 ## Features
 * Shows any website in a borderless full-screen window using Android System WebView.
 * Create home screen shortcuts and retrieve icons in a suitable resolution.
-* Various settings (JavaScript, cookies, ad blocking, location/camera/microphone access) can be configured individually for each web app.
+* Various settings (JavaScript, cookies, location/camera/microphone access) can be configured individually for each web app.
 * Navigation with multi-touch gestures while browsing.
-* Opt-in ad blocking with user-selected filter lists.
 * DOM and CSS modifications for an improved mobile browsing experience.
 * Manually removes "Get our app" banners and similar promotional components on supported sites.
-* **[Experimental]** Background playback for YouTube.
 * Modifiable JSON configuration for custom DOM and CSS modifications.
 * Custom header and footer app colors on a per-site basis.
 * Less memory footprint and no privacy-invading app permissions compared to native apps.
@@ -26,18 +24,16 @@
 ## Screenshots
 <div style="text-align: center; margin: auto;">
 <img src="graphics/screenshots/Screenshot_20260705-110232.png" alt="Main Screen Dark Mode" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110621.png" alt="Youtube Background Play" width="350"/>
 <img src="graphics/screenshots/Screenshot_20260705-110239.png" alt="Add Web App Dark" width="350"/>
 <img src="graphics/screenshots/Screenshot_20260705-110906.png" alt="Global Settings Dark" width="350"/>
 <img src="graphics/screenshots/Screenshot_20260705-110256.png" alt="Main Screen Light" width="350"/>
 <img src="graphics/screenshots/Screenshot_20260705-110912.png" alt="Site Settings JSON Dark" width="350"/>
 <img src="graphics/screenshots/Screenshot_20260705-110303.png" alt="Add Web App Light" width="350"/>
 <img src="graphics/screenshots/Screenshot_20260705-110945.png" alt="Web App Settings Dark" width="350"/>
-<img src="graphics/screenshots/Screenshot_20260705-110536.png" alt="Youtube PWA" width="350"/>
 </div>
 
 ## Download Options
-The latest version is available in the [GitHub Releases](https://github.com/cylonid/NativeAlphaForAndroid/releases).
+The latest version is available in the [GitHub Releases](https://github.com/ConnorPearson/native-alpha-plus-plus/releases).
 
 [![LiberaPay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/cylonid/donate)
 
@@ -52,7 +48,6 @@ __Note: From v1.5.0, the GitHub and IzzyOnDroid release is functionally equivale
   
 ## Latest Major Changes (v1.5.x)
 
-* New adblock engine that allows users to add their own selection of block lists. By default, the app will download and use "Fanboy Ultimate List" from https://fanboy.co.nz. You can change your block list sources at any time.
 * Material Design 3-based components and theme
 * Cleaner main screen, less buttons: "Delete" and "Open settings" actions are available via swipe, Web Apps are opened by clicking on the label.
 * Login using HTTP Auth is supported
@@ -63,7 +58,6 @@ __Note: From v1.5.0, the GitHub and IzzyOnDroid release is functionally equivale
 * Changed system top bar to neutral color again
 * Fixed an issue with desktop mode on large screens
 * Fixed crashes when opening pop up menu
-* Information dialog regarding adblock-related crashes
 
 ### Native Alpha++
 
@@ -115,7 +109,6 @@ A: You can build the app yourself, everything is open-source including the paid 
 ## Notable used libraries/resources
 * [CircularProgressBar](https://github.com/lopspower/CircularProgressBar)
 * [JSoup](https://jsoup.org/)
-* [AdblockAndroid](https://github.com/Edsuns/AdblockAndroid)
 * [MovableFloatingActionButton](https://stackoverflow.com/questions/46370836/android-movable-draggable-floating-action-button-fab)
 * [Android About Page](https://github.com/medyo/android-about-page)
 * [Android Databinding](https://developer.android.com/topic/libraries/data-binding)

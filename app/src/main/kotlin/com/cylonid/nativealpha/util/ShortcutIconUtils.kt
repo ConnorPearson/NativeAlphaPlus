@@ -40,6 +40,16 @@ object ShortcutIconUtils {
     }
 
     @JvmStatic
+    fun getIcon(context: Context, id: Int, url: String): Bitmap? {
+        val file = File(context.filesDir, "webapp_icon_$id.png")
+        return if (file.exists()) {
+            BitmapFactory.decodeFile(file.absolutePath)
+        } else {
+            null
+        }
+    }
+
+    @JvmStatic
     fun saveIcon(context: Context, webApp: WebApp, bitmap: Bitmap) {
         val file = File(context.filesDir, "webapp_icon_${webApp.ID}.png")
         try {
@@ -48,6 +58,26 @@ object ShortcutIconUtils {
             }
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+
+    @JvmStatic
+    fun saveIcon(context: Context, id: Int, bitmap: Bitmap) {
+        val file = File(context.filesDir, "webapp_icon_$id.png")
+        try {
+            FileOutputStream(file).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    @JvmStatic
+    fun deleteIcon(context: Context, id: Int) {
+        val file = File(context.filesDir, "webapp_icon_$id.png")
+        if (file.exists()) {
+            file.delete()
         }
     }
 

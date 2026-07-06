@@ -147,13 +147,22 @@ dependencies {
 
 
 }
+
 def NUM_OF_CONTAINERS = 8
+def generatedSrcDir = layout.buildDirectory.dir("generated/source/webviewcontainers/main/java").get().asFile
+
+android {
+    sourceSets {
+        main {
+            java.srcDirs += generatedSrcDir
+        }
+    }
+}
 
 (0..<NUM_OF_CONTAINERS).each { int i ->
-    TaskProvider<Copy> trTask = tasks.register("createWebViewclass${i}", Copy) {
+    def trTask = tasks.register("createWebViewclass${i}", Copy) {
         from 'src/main/java/com/cylonid/nativealpha/WebViewActivity.java'
-        into "src/main/java/com/cylonid/nativealpha"
-        mustRunAfter(i == 0 ? [] : tasks.getByName("createWebViewclass${i-1}"))
+        into new File(generatedSrcDir, "com/cylonid/nativealpha")
 
         filter { String line ->
             line.replaceAll("WebViewActivity", "__WebViewActivity_${i}")
