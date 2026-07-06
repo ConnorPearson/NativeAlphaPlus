@@ -82,6 +82,8 @@
             word-break: break-all;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
+            max-height: 60px;
+            overflow-y: auto;
         }
         #na-selector-ui .na-tag-badge {
             display: inline-block;
@@ -100,11 +102,17 @@
     var currentElement = null;
     var ui = document.createElement('div');
     ui.id = 'na-selector-ui';
-    ui.innerHTML = '<div style="color:#888; font-size: 14px;">Tap an element to hide</div>';
+
+    var initialMsg = document.createElement('div');
+    initialMsg.style.color = '#888';
+    initialMsg.style.fontSize = '14px';
+    initialMsg.textContent = 'Tap an element to hide';
+    ui.appendChild(initialMsg);
+
     document.body.appendChild(ui);
 
     function updateSelection(el) {
-        if (!el || el.nodeType !== Node.ELEMENT_NODE || el === ui) return;
+        if (!el || el.nodeType !== Node.ELEMENT_NODE || ui.contains(el)) return;
 
         if (currentElement) currentElement.classList.remove('na-highlighted');
         currentElement = el;
@@ -114,64 +122,73 @@
         var selector = getSelector(currentElement);
         var tagName = currentElement.tagName.toLowerCase();
 
-        ui.innerHTML = `
-            <div class="na-tag-badge">${tagName}</div>
-            <div class="na-selector-info">${selector}</div>
-            <div class="na-nav-grid">
-                <button id="na-up-btn" style="grid-area: up">▲ Parent</button>
-                <button id="na-prev-btn" style="grid-area: prev">◀</button>
-                <button id="na-next-btn" style="grid-area: next">▶</button>
-                <button id="na-down-btn" style="grid-area: down">▼ Child</button>
-            </div>
-            <button id="na-confirm-btn" class="na-primary">Remove Selected</button>
-            <button id="na-cancel-btn" class="na-secondary">Cancel</button>
-        `;
+        // Clear UI and rebuild without innerHTML to avoid TrustedHTML issues
+        while (ui.firstChild) ui.removeChild(ui.firstChild);
 
-        // Check availability of adjacent nodes
+        var badge = document.createElement('div');
+        badge.className = 'na-tag-badge';
+        badge.textContent = tagName;
+        ui.appendChild(badge);
+
+        var info = document.createElement('div');
+        info.className = 'na-selector-info';
+        info.textContent = selector;
+        ui.appendChild(info);
+
+        var navGrid = document.createElement('div');
+        navGrid.className = 'na-nav-grid';
+        ui.appendChild(navGrid);
+
+        function createBtn(id, text, area, onClick) {
+            var btn = document.createElement('button');
+            btn.id = id;
+            btn.textContent = text;
+            btn.style.gridArea = area;
+            btn.onclick = function(e) {
+                e.stopPropagation();
+                onClick();
+            };
+            navGrid.appendChild(btn);
+            return btn;
+        }
+
+        var upBtn = createBtn('na-up-btn', '▲ Parent', 'up', () => updateSelection(currentElement.parentElement));
+        var prevBtn = createBtn('na-prev-btn', '◀', 'prev', () => updateSelection(currentElement.previousElementSibling));
+        var nextBtn = createBtn('na-next-btn', '▶', 'next', () => updateSelection(currentElement.nextElementSibling));
+        var downBtn = createBtn('na-down-btn', '▼ Child', 'down', () => updateSelection(currentElement.firstElementChild));
+
         var parent = currentElement.parentElement;
         var hasParent = parent && parent !== document.documentElement && parent !== document.body.parentElement;
+        upBtn.disabled = !hasParent;
+        downBtn.disabled = !currentElement.firstElementChild;
+        prevBtn.disabled = !currentElement.previousElementSibling;
+        nextBtn.disabled = !currentElement.nextElementSibling;
 
-        document.getElementById('na-up-btn').disabled = !hasParent;
-        document.getElementById('na-down-btn').disabled = !currentElement.firstElementChild;
-        document.getElementById('na-prev-btn').disabled = !currentElement.previousElementSibling;
-        document.getElementById('na-next-btn').disabled = !currentElement.nextElementSibling;
-
-        document.getElementById('na-up-btn').onclick = function(e) {
-            e.stopPropagation();
-            updateSelection(currentElement.parentElement);
-        };
-
-        document.getElementById('na-down-btn').onclick = function(e) {
-            e.stopPropagation();
-            updateSelection(currentElement.firstElementChild);
-        };
-
-        document.getElementById('na-prev-btn').onclick = function(e) {
-            e.stopPropagation();
-            updateSelection(currentElement.previousElementSibling);
-        };
-
-        document.getElementById('na-next-btn').onclick = function(e) {
-            e.stopPropagation();
-            updateSelection(currentElement.nextElementSibling);
-        };
-
-        document.getElementById('na-confirm-btn').onclick = function(e) {
+        var confirmBtn = document.createElement('button');
+        confirmBtn.id = 'na-confirm-btn';
+        confirmBtn.className = 'na-primary';
+        confirmBtn.textContent = 'Remove Selected';
+        confirmBtn.onclick = function(e) {
             e.stopPropagation();
             if (window.NativeAlpha) {
                 window.NativeAlpha.onElementSelected(selector);
             }
             cleanup();
         };
+        ui.appendChild(confirmBtn);
 
-        document.getElementById('na-cancel-btn').onclick = function(e) {
+        var cancelBtn = document.createElement('button');
+        cancelBtn.id = 'na-cancel-btn';
+        cancelBtn.className = 'na-secondary';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.onclick = function(e) {
             e.stopPropagation();
             cleanup();
         };
+        ui.appendChild(cancelBtn);
     }
 
     function onClick(e) {
-        // Prevent clicking inside our own UI from triggering selection
         if (ui.contains(e.target)) return;
 
         e.preventDefault();
