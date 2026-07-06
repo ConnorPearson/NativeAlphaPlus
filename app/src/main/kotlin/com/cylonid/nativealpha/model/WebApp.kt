@@ -56,6 +56,9 @@ data class WebApp(var baseUrl: String, val ID: Int) {
     var isEnableZooming = false
     var isBiometricProtection = false
     var isAllowMediaPlaybackInBackground = false
+    var isBatterySaverCaching = true
+    var isFreezeJsInBg = false
+    var isBatterySaverReload = true
     var order = 0
     var alwaysUseFallbackContextMenu = false
     var adBlockSettings = mutableListOf<AdblockConfig>()
@@ -118,6 +121,9 @@ data class WebApp(var baseUrl: String, val ID: Int) {
         isEnableZooming = other.isEnableZooming
         isBiometricProtection = other.isBiometricProtection
         isAllowMediaPlaybackInBackground = other.isAllowMediaPlaybackInBackground
+        isBatterySaverCaching = other.isBatterySaverCaching
+        isFreezeJsInBg = other.isFreezeJsInBg
+        isBatterySaverReload = other.isBatterySaverReload
         order = other.order
         alwaysUseFallbackContextMenu = other.alwaysUseFallbackContextMenu
         adBlockSettings = other.adBlockSettings

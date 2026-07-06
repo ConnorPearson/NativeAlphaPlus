@@ -9,17 +9,22 @@
   --tonal-fg: #F8DFBB;
 }
 
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  user-select: none;
+  background-color: #F5F5F5;
+  color: black;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --tonal-bg: #FFDAD6;
     --tonal-fg: #5D3F3C;
   }
-}
-
-
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  user-select: none;
+  body {
+    background-color: black;
+    color: white;
+  }
 }
 
 button {

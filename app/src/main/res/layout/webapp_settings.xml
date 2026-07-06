@@ -22,8 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="@dimen/margin_activity"
-            android:orientation="vertical"
-            android:weightSum="100">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/labelTitle"
@@ -39,15 +38,13 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="99"
-                android:fadeScrollbars="false"
-                android:fillViewport="false"
-                android:scrollbarStyle="outsideOverlay">
+                android:layout_weight="1"
+                android:scrollbars="none"
+                android:fillViewport="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="20dp"
                     android:orientation="vertical"
                     android:visibility="visible">
 
@@ -217,6 +214,44 @@
                                 android:text="@string/enable_access_restriction" />
 
 
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/sectionBatteryOptimization"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/settings_bottom"
+                            android:divider="@drawable/empty_10dp_vertical"
+                            android:orientation="vertical"
+                            android:showDividers="middle">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/battery_optimization"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                android:textStyle="bold" />
+
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                android:id="@+id/switchBatterySaverCaching"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:checked="@={webapp.batterySaverCaching}"
+                                android:text="@string/intelligent_caching_in_power_save" />
+
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                android:id="@+id/switchFreezeJsInBg"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:checked="@={webapp.freezeJsInBg}"
+                                android:text="@string/freeze_js_in_background" />
+
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                android:id="@+id/switchBatterySaverReload"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:checked="@={webapp.batterySaverReload}"
+                                android:text="@string/power_save_aware_reload" />
                         </LinearLayout>
 
                         <LinearLayout

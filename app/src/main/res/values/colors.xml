@@ -1,5 +1,5 @@
 <resources>
-    <color name="md_theme_primary">#B71C1C</color>
+    <color name="md_theme_primary">#990033</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
     <color name="md_theme_primaryContainer">#FFDAD6</color>
     <color name="md_theme_onPrimaryContainer">#410002</color>
@@ -141,7 +141,7 @@
     <color name="md_theme_surfaceContainerHigh_highContrast">#E2D0CE</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#D4C3C0</color>
 
-    <color name="colorSignature">#b71c1c</color>
+    <color name="colorSignature">#990033</color>
     <color name="colorSignatureDark">#7f0000</color>
 
     <color name="transparent">#07000000</color>
@@ -161,4 +161,5 @@
     <color name="material_orange">#FF9800</color>
     <color name="dark_grey_surface">#1E1E1E</color>
     <color name="light_grey_surface">#F5F5F5</color>
+    <color name="popup_background">@color/pure_white</color>
 </resources>

@@ -5,8 +5,6 @@
     android:orientation="vertical"
     android:background="?attr/colorSurface">
 
-    <include layout="@layout/toolbar_back_action" android:id="@+id/toolbar"/>
-
     <EditText
         android:id="@+id/jsonEditor"
         android:layout_width="match_parent"

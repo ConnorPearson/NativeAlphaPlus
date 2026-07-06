@@ -109,8 +109,8 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
         updatePreview(editText.text.toString().trim())
 
         preview.setOnClickListener {
-            val colors = arrayOf("#000000", "#FFFFFF", "#B71C1C", "#1E1E1E", "#F5F5F5", "#2F3E59", "#232F3E", "#00288D", "#1F1F1F")
-            val colorNames = arrayOf("AMOLED Black", "Pure White", "Signature Red", "Dark Grey", "Light Grey", "Blitzortung Blue", "Amazon Dark", "PayPal Blue", "AccuWeather Dark")
+            val colors = arrayOf("#000000", "#FFFFFF", "#990033", "#1E1E1E", "#F5F5F5", "#2F3E59", "#232F3E", "#00288D", "#1F1F1F")
+            val colorNames = arrayOf("AMOLED Black", "Pure White", "Signature Accent", "Dark Grey", "Light Grey", "Blitzortung Blue", "Amazon Dark", "PayPal Blue", "AccuWeather Dark")
             
             MaterialAlertDialogBuilder(this, R.style.AppTheme_AlertDialog)
                 .setTitle("Pick a color")
@@ -171,6 +171,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
             }
 
             siteConfig?.let {
+                binding.txtWebAppName.setText(it.optString("title", binding.txtWebAppName.text.toString()))
                 binding.editStatusBarColor.setText(it.optString("statusBarColor", ""))
                 binding.editBottomBarColor.setText(it.optString("bottomBarColor", ""))
                 binding.editLoadingBarColor.setText(it.optString("loadingBarColor", ""))
@@ -211,6 +212,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
                 }
 
                 if (originalConfig != null) {
+                    binding.txtWebAppName.setText(originalConfig.optString("title", host))
                     binding.editStatusBarColor.setText(originalConfig.optString("statusBarColor", ""))
                     binding.editBottomBarColor.setText(originalConfig.optString("bottomBarColor", ""))
                     binding.editLoadingBarColor.setText(originalConfig.optString("loadingBarColor", ""))
@@ -253,6 +255,9 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
             }
 
             val siteConfig = JSONObject()
+            val title = binding.txtWebAppName.text.toString().trim()
+            if (title.isNotEmpty()) siteConfig.put("title", title)
+
             val statusBar = binding.editStatusBarColor.text.toString().trim()
             if (statusBar.isNotEmpty()) siteConfig.put("statusBarColor", statusBar)
             

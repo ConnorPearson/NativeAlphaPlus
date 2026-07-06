@@ -15,11 +15,11 @@
     <color name="md_theme_onError">#690005</color>
     <color name="md_theme_errorContainer">#93000A</color>
     <color name="md_theme_onErrorContainer">#FFDAD6</color>
-    <color name="md_theme_background">#17130B</color>
+    <color name="md_theme_background">#000000</color>
     <color name="md_theme_onBackground">#ECE1D4</color>
-    <color name="md_theme_surface">#17130B</color>
+    <color name="md_theme_surface">#000000</color>
     <color name="md_theme_onSurface">#ECE1D4</color>
-    <color name="md_theme_surfaceVariant">#4E4539</color>
+    <color name="md_theme_surfaceVariant">#000000</color>
     <color name="md_theme_onSurfaceVariant">#D2C4B4</color>
     <color name="md_theme_outline">#9B8F80</color>
     <color name="md_theme_outlineVariant">#4E4539</color>
@@ -39,13 +39,13 @@
     <color name="md_theme_onTertiaryFixed">#0D2005</color>
     <color name="md_theme_tertiaryFixedDim">#B5CEA4</color>
     <color name="md_theme_onTertiaryFixedVariant">#374C2C</color>
-    <color name="md_theme_surfaceDim">#17130B</color>
+    <color name="md_theme_surfaceDim">#000000</color>
     <color name="md_theme_surfaceBright">#3F382F</color>
-    <color name="md_theme_surfaceContainerLowest">#120D07</color>
-    <color name="md_theme_surfaceContainerLow">#201B13</color>
-    <color name="md_theme_surfaceContainer">#241F17</color>
-    <color name="md_theme_surfaceContainerHigh">#2F2921</color>
-    <color name="md_theme_surfaceContainerHighest">#3A342B</color>
+    <color name="md_theme_surfaceContainerLowest">#000000</color>
+    <color name="md_theme_surfaceContainerLow">#000000</color>
+    <color name="md_theme_surfaceContainer">#000000</color>
+    <color name="md_theme_surfaceContainerHigh">#000000</color>
+    <color name="md_theme_surfaceContainerHighest">#000000</color>
     <color name="md_theme_primary_mediumContrast">#FFD697</color>
     <color name="md_theme_onPrimary_mediumContrast">#352200</color>
     <color name="md_theme_primaryContainer_mediumContrast">#B5893E</color>
@@ -140,4 +140,6 @@
     <color name="md_theme_surfaceContainer_highContrast">#362F27</color>
     <color name="md_theme_surfaceContainerHigh_highContrast">#413A32</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#4D463C</color>
+    <color name="colorSignature">#990033</color>
+    <color name="popup_background">#2C2C2C</color>
 </resources>

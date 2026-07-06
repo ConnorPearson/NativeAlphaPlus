@@ -3,6 +3,7 @@
     "statusBarColor": "#2f3e59",
     "bottomBarColor": "#2f3e59",
     "loadingBarColor": "#2f3e59",
+    "icon": "blitzortung.png",
     "remove": [
       "#AdvertismentDiv_bottom",
       ".ft-menu",
@@ -14,26 +15,24 @@
       ".MapDiv, #map, .mapboxgl-canvas { height: 100vh !important; bottom: 0 !important;}"
     ]
   },
-
-  "www.amazon.co.uk": {
+  "amazon.co.uk": {
     "statusBarColor": "#232f3e",
     "bottomBarColor": "#ffffff",
     "loadingBarColor": "#232f3e",
+    "icon": "amazon.png",
     "remove": [
       "#nav-app-banner-container"
     ],
     "injectCss": [
-      "html, body { margin:0 !important; padding:0 !important; overflow:hidden !important; background:#000 !important; }"
+      "html, body { margin:0 !important; padding:0 !important; !important; !important; }"
     ]
   },
-
   "picturehouses.com": {
     "statusBarColor": "#ffffff",
     "bottomBarColor": "#ffffff",
     "loadingBarColor": "#ffffff"
   },
-
-  "www.accuweather.com": {
+  "accuweather.com": {
     "statusBarColor": "#1f1f1f",
     "loadingBarColor": "#1f1f1f",
     "remove": [
@@ -51,12 +50,10 @@
       ".header-placeholder.has-adhesion { height: 50px !important; }"
     ]
   },
-
-  "www.paypal.com": {
+  "paypal.com": {
     "statusBarColor": "#00288d",
     "loadingBarColor": "#00288d"
   },
-
   "ebay.co.uk": {
     "statusBarColor": "#121212",
     "bottomBarColor": "#121212",
@@ -65,13 +62,11 @@
       ".gadget-banner.bottom-of-page"
     ]
   },
-
   "nhs.uk": {
     "statusBarColor": "#005eb8",
     "bottomBarColor": "#323638",
     "loadingBarColor": "#005eb8"
   },
-
   "booking.com": {
     "statusBarColor": "#003b95",
     "bottomBarColor": "#003b95",
@@ -80,19 +75,16 @@
       "div[data-testid=\"gta-header-banner-container-test\"]"
     ]
   },
-
   "skyscanner.net": {
     "statusBarColor": "#05203c",
     "bottomBarColor": "#05203c",
     "loadingBarColor": "#05203c"
   },
-
   "facebook.com": {
     "statusBarColor": "#121212",
     "bottomBarColor": "#121212",
     "loadingBarColor": "#121212"
   },
-
   "hostelworld.com": {
     "statusBarColor": "#121212",
     "bottomBarColor": "#121212",
@@ -101,7 +93,6 @@
       ".app-banner-container"
     ]
   },
-
   "rightmove.co.uk": {
     "statusBarColor": "#121212",
     "bottomBarColor": "#121212",
@@ -110,12 +101,10 @@
       "#xcfCSYW7JYqVzFrxfzQa"
     ]
   },
-
   "aviva.co.uk": {
     "statusBarColor": "#ffd900",
     "loadingBarColor": "#ffd900"
   },
-
   "vinted.co.uk": {
     "statusBarColor": "#121212",
     "bottomBarColor": "#121212",
@@ -124,16 +113,75 @@
       "div[data-testid=\"app-banner-wrapper\"]"
     ]
   },
-
-  "www.artstation.com": {
+  "artstation.com": {
     "statusBarColor": "#101014",
     "bottomBarColor": "#101014",
     "loadingBarColor": "#101014"
   },
-
   "duck.ai": {
     "statusBarColor": "#111111",
     "bottomBarColor": "#111111",
     "loadingBarColor": "#111111"
+  },
+  "wikipedia.com": {
+    "statusBarColor": "#27292d",
+    "icon": "wikipedia.png"
+  },
+  "youtube.com": {
+    "statusBarColor": "#0f0f0f",
+    "bottomBarColor": "#0f0f0f",
+    "icon": "youtube.png",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+    "allowBackgroundPlayback": true,
+    "remove": [
+      "#masthead-ad",
+      "ytd-ad-slot-renderer",
+      "ytm-promoted-sparkles-web-renderer",
+      "ytd-promoted-video-renderer",
+      "ytd-display-ad-renderer",
+      "ytd-statement-banner-renderer",
+      "ytd-in-feed-ad-layout-renderer",
+      "ytd-banner-promo-renderer",
+      ".ytp-ad-module",
+      ".ytp-ad-overlay-container",
+      ".ytp-ad-image-overlay",
+      ".ytp-ad-text-overlay",
+      ".ad-container",
+      ".ad-div",
+      "#player-ads",
+      "ytm-companion-ad-renderer",
+      "ytm-ad-slot-renderer",
+      "ytm-promoted-item-renderer",
+      "ytd-video-masthead-ad-v3-renderer",
+      "yt-mealbar-promo-renderer",
+      "ad-slot-renderer",
+      "ytm-pab-renderer",
+      "ytm-promoted-sparkles-text-search-renderer",
+      "ytm-item-section-renderer[section-identifier=\"ads-entry\"]",
+      ".ytd-player-legacy-desktop-watch-ads-action-panel-renderer",
+      "ytd-reel-shelf-renderer",
+      "ytm-reel-shelf-renderer",
+      "ytm-pivot-bar-renderer ytm-pivot-bar-item-renderer:nth-child(2)",
+      "a[href^=\"/shorts\"]"
+    ],
+    "injectCss": [
+      "ytd-ad-slot-renderer, ytm-ad-slot-renderer, #masthead-ad, .ytp-ad-module, .ytp-ad-overlay-container, .ytp-ad-image-overlay, .ytp-ad-text-overlay { display: none !important; }",
+      ".video-ads, .ytp-ad-progress-list { visibility: hidden !important; }",
+      "ytm-promoted-sparkles-web-renderer, ytd-banner-promo-renderer, ytm-companion-ad-renderer { display: none !important; }",
+      "#player-ads, #masthead-ad, ytd-promoted-video-renderer { display: none !important; }",
+      "ytd-reel-shelf-renderer, ytm-reel-shelf-renderer { display: none !important; }",
+      "ytm-pivot-bar-renderer ytm-pivot-bar-item-renderer:nth-child(2) { display: none !important; }",
+      "a[href^=\"/shorts\"] { display: none !important; }"
+    ]
+  },
+  "bandcamp.com": {
+    "statusBarColor": "#629aa9",
+    "bottomBarColor": "#629aa9",
+    "loadingBarColor": "#629aa9",
+    "allowBackgroundPlayback": true
+  },
+  "google.com": {
+    "statusBarColor": "#ffffff",
+    "icon": "google.png"
   }
 }

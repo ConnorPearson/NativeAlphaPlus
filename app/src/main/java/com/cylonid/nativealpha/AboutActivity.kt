@@ -1,11 +1,14 @@
 package com.cylonid.nativealpha
 
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.cylonid.nativealpha.databinding.ActivityToolbarBaseBinding
 import com.cylonid.nativealpha.util.ColorUtils.getColorResFromThemeAttr
 import com.mikepenz.aboutlibraries.LibsBuilder
@@ -21,6 +24,17 @@ class AboutActivity : AppCompatActivity() {
         setContentView(baseBinding.root)
 
         val aboutView = generateAboutPageView()
+        val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val bgColor = if (isDarkMode) Color.BLACK else ContextCompat.getColor(this, R.color.light_grey_surface)
+        
+        aboutView.setBackgroundColor(bgColor)
+        // Ensure the internal container also has the background
+        if (aboutView is android.view.ViewGroup && aboutView.childCount > 0) {
+            aboutView.getChildAt(0).setBackgroundColor(bgColor)
+        }
+
+        baseBinding.activityContent.setBackgroundColor(bgColor)
+
         baseBinding.activityContent.addView(aboutView)
 
         val toolbar = baseBinding.toolbar.topAppBar

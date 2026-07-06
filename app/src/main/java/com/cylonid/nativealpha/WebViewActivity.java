@@ -267,6 +267,19 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }
         wv.setWebViewClient(new CustomBrowser());
         wv.getSettings().setSafeBrowsingEnabled(false);
+
+        // Battery Optimization: Use cache mode when in power save mode
+        if (webapp.isBatterySaverCaching()) {
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(android.content.Context.POWER_SERVICE);
+            if (pm != null && pm.isPowerSaveMode()) {
+                wv.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_CACHE_ELSE_NETWORK);
+            } else {
+                wv.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_DEFAULT);
+            }
+        } else {
+            wv.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_DEFAULT);
+        }
+
         wv.getSettings().setDomStorageEnabled(true);
         wv.getSettings().setDatabaseEnabled(true);
         wv.getSettings().setAllowFileAccess(true);
@@ -384,8 +397,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                WebApp webapp = DataManager.getInstance().getWebApp(webappID);
-                if (webapp.isRequestDesktop())
+                if (webapp == null || webapp.isRequestDesktop())
                     return false;
 
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -463,33 +475,52 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private void applySiteSystemBars(String url) {
         try {
             JSONObject site = getSiteConfig(url);
-            if (site == null) return;
 
-            String statusBar = site.optString("statusBarColor", null);
-            String bottomBar = site.optString("bottomBarColor", null);
-            String loadingBar = site.optString("loadingBarColor", null);
+            boolean isDarkMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+            if (webapp != null) {
+                boolean needsForcedDarkMode = (webapp.isUseTimespanDarkMode() &&
+                        DateUtils.isInInterval(DateUtils.convertStringToCalendar(webapp.getTimespanDarkModeBegin()), Calendar.getInstance(), DateUtils.convertStringToCalendar(webapp.getTimespanDarkModeEnd())))
+                        || (!webapp.isUseTimespanDarkMode() && webapp.isForceDarkMode());
+                if (needsForcedDarkMode) isDarkMode = true;
+            }
+
+            String defaultColor = isDarkMode ? "#000000" : "#F5F5F5";
+
+            String statusBar = (site != null) ? site.optString("statusBarColor", defaultColor) : defaultColor;
+            if (statusBar.isEmpty()) statusBar = defaultColor;
+
+            String bottomBar = (site != null) ? site.optString("bottomBarColor", defaultColor) : defaultColor;
+            if (bottomBar.isEmpty()) bottomBar = defaultColor;
+
+            // Failsafe: If in dark/AMOLED mode, ignore light colors from JSON to prevent blinding the user
+            if (isDarkMode) {
+                if (statusBar != null && ColorUtils.calculateLuminance(Color.parseColor(statusBar)) > 0.5) {
+                    statusBar = defaultColor;
+                }
+                if (bottomBar != null && ColorUtils.calculateLuminance(Color.parseColor(bottomBar)) > 0.5) {
+                    bottomBar = defaultColor;
+                }
+            }
+
+            String loadingBar = (site != null) ? site.optString("loadingBarColor", null) : null;
 
             Window window = getWindow();
             WindowInsetsControllerCompat windowInsetsController = new WindowInsetsControllerCompat(window, window.getDecorView());
 
-            if (statusBar != null && !statusBar.isEmpty()) {
-                int color = Color.parseColor(statusBar);
-                window.setStatusBarColor(color);
-                windowInsetsController.setAppearanceLightStatusBars(ColorUtils.calculateLuminance(color) > 0.5);
-            }
+            int statusBarColor = Color.parseColor(statusBar);
+            window.setStatusBarColor(statusBarColor);
+            windowInsetsController.setAppearanceLightStatusBars(ColorUtils.calculateLuminance(statusBarColor) > 0.5);
 
-            if (bottomBar != null && !bottomBar.isEmpty()) {
-                int color = Color.parseColor(bottomBar);
-                window.setNavigationBarColor(color);
-                windowInsetsController.setAppearanceLightNavigationBars(ColorUtils.calculateLuminance(color) > 0.5);
-            }
+            int navBarColor = Color.parseColor(bottomBar);
+            window.setNavigationBarColor(navBarColor);
+            windowInsetsController.setAppearanceLightNavigationBars(ColorUtils.calculateLuminance(navBarColor) > 0.5);
 
             if (loadingBar != null && !loadingBar.isEmpty() && progressBar != null) {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor(loadingBar)));
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("NativeAlpha", "Error applying system bar colors", e);
         }
     }
     @SuppressLint("RequiresFeature")
@@ -620,7 +651,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
     @Override
     public void onBackPressed() {
-        WebApp webapp = DataManager.getInstance().getWebApp(webappID);
+        if (webapp == null) return;
 
         if(wv.canGoBack()) {
             wv.goBack();
@@ -650,6 +681,12 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
         wv.onResume();
         wv.resumeTimers();
+
+        // Battery Optimization: Re-enable JS if it was frozen
+        if (webapp.isFreezeJsInBg() && webapp.isAllowJs()) {
+            wv.getSettings().setJavaScriptEnabled(true);
+        }
+
         this.setDarkModeIfNeeded();
 
 
@@ -670,6 +707,12 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         super.onPause();
 
         wv.evaluateJavascript("document.querySelectorAll('audio').forEach(x => x.pause());document.querySelectorAll('video').forEach(x => x.pause());", null);
+
+        // Battery Optimization: Disable JS in background
+        if (webapp.isFreezeJsInBg() && webapp.isAllowJs()) {
+            wv.getSettings().setJavaScriptEnabled(false);
+        }
+
         wv.onPause();
         wv.pauseTimers();
         if(mPopupMenu != null) mPopupMenu.dismiss();
@@ -685,6 +728,15 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
     private void reload() {
         reload_handler.postDelayed(() -> {
+            // Battery Optimization: Skip reload if battery saver is on
+            if (webapp.isBatterySaverReload()) {
+                android.os.PowerManager pm = (android.os.PowerManager) getSystemService(android.content.Context.POWER_SERVICE);
+                if (pm != null && pm.isPowerSaveMode()) {
+                    reload(); // Reschedule but don't load
+                    return;
+                }
+            }
+
             currently_reloading = true;
             wv.reload();
             reload();
@@ -986,7 +1038,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 .setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> handler.cancel())
                 .show();
     }
-    private void applySiteRules(WebView view, String url) {
+    private void applySiteRules(WebView view, String url, boolean isDomReady) {
         try {
             JSONObject site = getSiteConfig(url);
             if (site == null) return;
@@ -1022,7 +1074,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             }
 
             // 3. Actual DOM removal (cleanup) - only run if DOM is likely ready
-            if (remove != null && remove.length() > 0 && !"onPageStarted".equals(new Throwable().getStackTrace()[1].getMethodName())) {
+            if (isDomReady && remove != null && remove.length() > 0) {
                 StringBuilder removeJs = new StringBuilder("(function(){");
                 for (int j = 0; j < remove.length(); j++) {
                     removeJs.append("document.querySelectorAll(")
@@ -1048,26 +1100,37 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
         @Override
         public void onPageCommitVisible(WebView view, String url) {
-            applySiteRules(view, url);
+            applySiteRules(view, url, true);
             super.onPageCommitVisible(view, url);
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
-            applySiteRules(view, url);
+            applySiteRules(view, url, true);
 
             if (url.equals("about:blank")) {
                 String langExtension = LocaleUtils.getFileEnding();
                 wv.loadUrl("file:///android_asset/errorSite/error_" + langExtension + ".html");
                 return;
             }
+
+            if (webapp.isRequestDesktop()) {
+                view.evaluateJavascript("""
+                        var needsForcedWidth = document.documentElement.clientWidth < 1200;
+                        if(needsForcedWidth) {
+                          document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=1200px, initial-scale=' + (document.documentElement.clientWidth / 1200));
+                        }
+                       """, null);
+            }
+            view.evaluateJavascript("document.addEventListener(\"visibilitychange\", (event) => { event.stopImmediatePropagation(); });", null);
+
             super.onPageFinished(view, url);
         }
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             applySiteSystemBars(url);
-            applySiteRules(view, url);
+            applySiteRules(view, url, false);
             adFilter.performScript(view, url);
 
             super.onPageStarted(view, url, favicon);
@@ -1138,22 +1201,14 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         @Override
         public void onLoadResource(WebView view, String url) {
             super.onLoadResource(view, url);
-
-           if (DataManager.getInstance().getWebApp(webappID).isRequestDesktop())
-               view.evaluateJavascript("""
-                        var needsForcedWidth = document.documentElement.clientWidth < 1200;
-                        if(needsForcedWidth) {
-                          document.querySelector('meta[name=\"viewport\"]').setAttribute('content', 'width=1200px, initial-scale=' + (document.documentElement.clientWidth / 1200));
-                        }
-                       """, null);
-            view.evaluateJavascript("document.addEventListener(    \"visibilitychange\"    , (event) => {         event.stopImmediatePropagation();    }  );", null);
         }
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             runOnUiThread(() -> setDarkModeIfNeeded());
             String url = request.getUrl().toString();
-            WebApp webapp = DataManager.getInstance().getWebApp(webappID);
+
+            if (webapp == null) return true;
 
             if (url.startsWith("tel:")) {
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(url));

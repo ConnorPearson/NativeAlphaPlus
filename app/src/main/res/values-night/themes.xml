@@ -17,6 +17,7 @@
         <item name="colorOnError">@color/md_theme_onError</item>
         <item name="colorErrorContainer">@color/md_theme_errorContainer</item>
         <item name="colorOnErrorContainer">@color/md_theme_onErrorContainer</item>
+        <item name="android:windowBackground">@color/amoled_black</item>
         <item name="android:colorBackground">@color/amoled_black</item>
         <item name="colorOnBackground">@color/md_theme_onBackground</item>
         <item name="colorSurface">@color/amoled_black</item>
@@ -50,9 +51,23 @@
         <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
         <item name="android:statusBarColor">@color/amoled_black</item>
         <item name="android:navigationBarColor">@color/amoled_black</item>
+        <item name="android:textColorPrimary">@color/pure_white</item>
+        <item name="android:textColorSecondary">@color/secondary_text_color</item>
         <item name="materialAlertDialogTheme">@style/AppTheme.AlertDialog</item>
         <item name="actionOverflowMenuStyle">@style/AppTheme.OverflowMenu</item>
         <item name="popupMenuStyle">@style/AppTheme.PopupMenu</item>
+        <item name="materialButtonStyle">@style/AppTheme.Button</item>
+        <item name="actionButtonStyle">@style/AppTheme.ActionButton</item>
+        <item name="buttonBarButtonStyle">@style/AppTheme.Button.Text</item>
+    </style>
+
+    <style name="AppTheme.ActionButton" parent="Widget.AppCompat.ActionButton">
+        <item name="android:minWidth">56dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="AppTheme.Button" parent="Widget.Material3.Button">
     </style>
 
     <style name="AppTheme.OverflowMenu" parent="Widget.Material3.PopupMenu.Overflow">
@@ -66,6 +81,12 @@
     <style name="AppTheme.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="shapeAppearance">@style/ShapeAppearance.App.Dialog</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.Dialog</item>
+        <item name="buttonBarPositiveButtonStyle">@style/AppTheme.Button.Text</item>
+        <item name="buttonBarNegativeButtonStyle">@style/AppTheme.Button.Text</item>
+        <item name="buttonBarNeutralButtonStyle">@style/AppTheme.Button.Text</item>
+    </style>
+
+    <style name="AppTheme.Button.Text" parent="Widget.Material3.Button.TextButton">
     </style>
 
     <style name="ShapeAppearance.App.Dialog" parent="ShapeAppearance.Material3.LargeComponent">

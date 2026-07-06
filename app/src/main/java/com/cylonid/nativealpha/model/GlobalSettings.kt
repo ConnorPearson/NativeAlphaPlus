@@ -12,7 +12,10 @@ data class GlobalSettings(
     var themeId: Int = 0,
     var globalWebApp: WebApp = WebApp("about:blank", Int.MAX_VALUE, Const.getDefaultAdBlockConfig()),
     var alwaysShowSoftwareButtons: Boolean = false,
-    var clear_cookies: Boolean = false
+    var clear_cookies: Boolean = false,
+    var isBatterySaverCaching: Boolean = true,
+    var isFreezeJsInBg: Boolean = false,
+    var isBatterySaverReload: Boolean = true
 ) {
 
     fun setClearCookies(clear_cookies: Boolean) {

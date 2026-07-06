@@ -22,11 +22,13 @@ import com.google.gson.reflect.TypeToken;
 import com.himanshurawat.hasher.HashType;
 import com.himanshurawat.hasher.Hasher;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
@@ -74,6 +76,7 @@ public class DataManager {
     private SharedPreferences appdata;
 
     private GlobalSettings settings;
+    private long lastLoadedTimestamp = -1;
 
     private DataManager()
     {
@@ -105,6 +108,11 @@ public class DataManager {
         editor.putString(shared_pref_webappdata, json);
         editor.putInt(shared_pref_max_id, max_assigned_ID);
         if (SandboxManager.getInstance() != null) editor.putInt(shared_pref_next_container, SandboxManager.getInstance().getNextContainer());
+
+        long newTimestamp = System.currentTimeMillis();
+        editor.putLong("last_update_timestamp", newTimestamp);
+        lastLoadedTimestamp = newTimestamp;
+
         editor.apply();
     }
 
@@ -158,6 +166,12 @@ public class DataManager {
         Utility.Assert(App.getAppContext() != null, "App.getAppContext() null before loading sharedpref");
 
         appdata = App.getAppContext().getSharedPreferences(SHARED_PREF_KEY, MODE_PRIVATE);
+
+        long currentTimestamp = appdata.getLong("last_update_timestamp", 0);
+        if (lastLoadedTimestamp == currentTimestamp && websites != null && !websites.isEmpty()) {
+            return;
+        }
+
         //Webapp data
         if (appdata.contains(shared_pref_webappdata)) {
             GsonBuilder gsonBuilder = new GsonBuilder();
@@ -192,6 +206,8 @@ public class DataManager {
             if(oldDataFormat != DataVersionConverter.getDataFormat(currentDataFormattedJson)) this.saveGlobalSettings();
         }
 
+        lastLoadedTimestamp = currentTimestamp;
+
     }
 
     public void loadGlobalSettingsLegacy() {
@@ -214,6 +230,11 @@ public class DataManager {
         String json = gson.toJson(settings);
         editor.putString(shared_pref_globalsettings, json);
         editor.putBoolean(shared_pref_global_settings_json, true);
+
+        long newTimestamp = System.currentTimeMillis();
+        editor.putLong("last_update_timestamp", newTimestamp);
+        lastLoadedTimestamp = newTimestamp;
+
         editor.apply();
     }
 
@@ -292,7 +313,39 @@ public class DataManager {
             Base64OutputStream b64os = new Base64OutputStream(fos, Base64.DEFAULT);
             ObjectOutputStream oos = new ObjectOutputStream(b64os)) {
             appdata = App.getAppContext().getSharedPreferences(SHARED_PREF_KEY, MODE_PRIVATE);
-            TreeMap<String, ?> shared_pref_map = new TreeMap<>(appdata.getAll());
+            TreeMap<String, Object> shared_pref_map = new TreeMap<>(appdata.getAll());
+
+            // Backup sites.json content
+            File sitesFile = new File(App.getAppContext().getFilesDir(), "sites.json");
+            if (sitesFile.exists()) {
+                try (FileInputStream fis = new FileInputStream(sitesFile)) {
+                    byte[] data = new byte[(int) sitesFile.length()];
+                    int length = fis.read(data);
+                    if (length > 0) {
+                        shared_pref_map.put("INTERNAL_SITES_JSON", new String(data, 0, length, StandardCharsets.UTF_8));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Backup icons
+            File[] files = App.getAppContext().getFilesDir().listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().startsWith("webapp_icon_") && file.getName().endsWith(".png")) {
+                        try (FileInputStream fis = new FileInputStream(file)) {
+                            byte[] data = new byte[(int) file.length()];
+                            int length = fis.read(data);
+                            if (length > 0) {
+                                shared_pref_map.put("ICON_" + file.getName(), Base64.encodeToString(data, 0, length, Base64.DEFAULT));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
 
             oos.writeObject(Hasher.Companion.hash(shared_pref_map.toString(), HashType.SHA_256));
             oos.writeObject(shared_pref_map);
@@ -322,6 +375,32 @@ public class DataManager {
             for (Map.Entry<String, ?> entry : shared_pref_map.entrySet()) {
                 Object v = entry.getValue();
                 String key = entry.getKey();
+
+                if ("INTERNAL_SITES_JSON".equals(key)) {
+                    try {
+                        File sitesFile = new File(App.getAppContext().getFilesDir(), "sites.json");
+                        try (FileOutputStream fos = new FileOutputStream(sitesFile)) {
+                            fos.write(((String) v).getBytes(StandardCharsets.UTF_8));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    continue;
+                }
+
+                if (key.startsWith("ICON_webapp_icon_")) {
+                    try {
+                        String fileName = key.substring(5); // Remove "ICON_"
+                        File iconFile = new File(App.getAppContext().getFilesDir(), fileName);
+                        byte[] data = Base64.decode((String) v, Base64.DEFAULT);
+                        try (FileOutputStream fos = new FileOutputStream(iconFile)) {
+                            fos.write(data);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    continue;
+                }
 
                 if (v instanceof Boolean)
                     prefEdit.putBoolean(key, (Boolean) v);

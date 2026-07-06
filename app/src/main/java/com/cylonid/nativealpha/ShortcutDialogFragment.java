@@ -76,14 +76,20 @@ public class ShortcutDialogFragment extends DialogFragment  {
     private CircularProgressBar uiProgressBar;
     private EditText uiTitle;
     private Thread faviconFetcherThread;
+    private boolean isRestoration = false;
 
     public ShortcutDialogFragment() {}
 
     public static ShortcutDialogFragment newInstance(WebApp webapp) {
+        return newInstance(webapp, false);
+    }
+
+    public static ShortcutDialogFragment newInstance(WebApp webapp, boolean isRestoration) {
         ShortcutDialogFragment frag = new ShortcutDialogFragment();
         frag.webapp = webapp;
         frag.base_url = webapp.getBaseUrl();
         frag.bitmap = null;
+        frag.isRestoration = isRestoration;
 
         return frag;
     }
@@ -126,6 +132,14 @@ public class ShortcutDialogFragment extends DialogFragment  {
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, (dialog1, which) -> {
+                    if (bitmap != null) {
+                        ShortcutIconUtils.saveIcon(requireActivity(), webapp, bitmap);
+                    }
+                    String final_title = uiTitle.getText().toString();
+                    if (!final_title.isEmpty()) {
+                        webapp.setTitle(final_title);
+                        DataManager.getInstance().replaceWebApp(webapp);
+                    }
                     addShortcutToHomeScreen(bitmap);
                     dismiss();
                 })
@@ -135,6 +149,9 @@ public class ShortcutDialogFragment extends DialogFragment  {
                 .create();
 
         uiTitle = view.findViewById(R.id.websiteTitle);
+        if (webapp != null && webapp.getTitle() != null) {
+            uiTitle.setText(webapp.getTitle());
+        }
         uiFavicon = view.findViewById(R.id.favicon);
         uiProgressBar = view.findViewById(R.id.circularProgressBar);
 
@@ -155,7 +172,15 @@ public class ShortcutDialogFragment extends DialogFragment  {
                 e.printStackTrace();
             }
         });
-        dialog.setOnShowListener(dialog12 -> startFaviconFetching());
+        dialog.setOnShowListener(dialog12 -> {
+            bitmap = ShortcutIconUtils.getIcon(requireActivity(), webapp);
+            if (bitmap != null) {
+                applyNewBitmapToDialog();
+            }
+            if (!isRestoration || bitmap == null) {
+                startFaviconFetching();
+            }
+        });
 
         return dialog;
     }
@@ -386,19 +411,19 @@ public class ShortcutDialogFragment extends DialogFragment  {
     }
 
     private void setShortcutTitle(String shortcut_title) {
-        if (shortcut_title != null) {
-            if (!shortcut_title.equals(""))
+        if (shortcut_title != null && !shortcut_title.equals("")) {
+            if (uiTitle.getText().toString().isEmpty() || !isRestoration) {
                 uiTitle.setText(shortcut_title);
-
+            }
         }
-        else {
+        else if (uiTitle.getText().toString().isEmpty()) {
             uiTitle.setText(webapp.getTitle());
         }
         uiTitle.requestFocus();
     }
 
     private void applyNewBaseUrl(String url) {
-        if (url != null) {
+        if (url != null && !isRestoration) {
             webapp.setBaseUrl(url);
             DataManager.getInstance().saveWebAppData();
         }

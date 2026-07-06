@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Native Alpha</string>
+    <string name="app_name" translatable="false">Native Alpha++</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="spinner_prompt">UI Mode</string>
@@ -85,8 +85,8 @@
     <string name="dialog_permission_location_txt">Do you want to grant this Web App access to your location? You can revoke this decision any time in the Web App Settings menu.</string>
     <string name="dialog_permission_drm_title">DRM Content</string>
     <string name="dialog_permission_drm_txt">Do you want allow this Web App to load DRM-protected content?</string>
-    <string name="permission_location_rationale">If you want Web Apps to be able to retrieve your location, you can Native Alpha grant the permission to access the location. You can decide to grant the permission for every Web App individually.</string>
-    <string name="permission_storage_rationale">If you want Native Alpha Web Apps to be able to download files, you have to accept the storage permission request.</string>
+    <string name="permission_location_rationale">If you want Web Apps to be able to retrieve your location, you can Native Alpha++ grant the permission to access the location. You can decide to grant the permission for every Web App individually.</string>
+    <string name="permission_storage_rationale">If you want Native Alpha++ Web Apps to be able to download files, you have to accept the storage permission request.</string>
     <string name="file_download">File is being downloaded…</string>
     <string name="file_download_failed">Could not download file.</string>
     <string name="custom_icon">Select custom icon</string>
@@ -136,7 +136,7 @@
     <string name="allow_microphone_access">Allow microphone access</string>
     <string name="dialog_permission_microphone_title">Microphone Access</string>
     <string name="dialog_permission_microphone_txt">Do you want to grant this Web App access to your microphone? You can revoke this decision any time in the Web App Settings menu.</string>
-    <string name="app_name_plus" translatable="false">Native Alpha +</string>
+    <string name="app_name_plus" translatable="false">Native Alpha++</string>
     <string name="shortcut_already_exists">A shortcut with this name already exists. Please choose another name or delete the existing shortcut.</string>
     <string name="back">Back</string>
     <string name="forward">Forward</string>
@@ -190,4 +190,12 @@
     <string name="dom_removal_selectors">DOM Removal (Selectors, one per line)</string>
     <string name="inject_css_rules">Inject CSS (Rules, one per line)</string>
     <string name="reset_to_original">Reset to Original Rules</string>
+
+    <string name="battery_optimization">Battery Optimization</string>
+    <string name="intelligent_caching_in_power_save">Intelligent Caching (Power Save)</string>
+    <string name="freeze_js_in_background">Freeze JavaScript in Background</string>
+    <string name="power_save_aware_reload">Battery-Saver Aware Auto-Reload</string>
+    <string name="intelligent_caching_description">Prefers cached content when the device is in battery saver mode to minimize radio usage.</string>
+    <string name="freeze_js_description">Disables JavaScript execution when the WebApp is not visible to save CPU cycles.</string>
+    <string name="power_save_reload_description">Pauses auto-reload intervals when the device is in battery saver mode.</string>
 </resources>

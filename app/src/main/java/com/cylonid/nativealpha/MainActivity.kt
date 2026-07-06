@@ -2,12 +2,14 @@ package com.cylonid.nativealpha
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.util.Log
 import android.os.Bundle
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+        Log.d("NativeAlpha", "MainActivity onCreate. TaskID: $taskId")
         setContentView(R.layout.activity_main)
         webAppListFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container_view) as WebAppListFragment
@@ -42,9 +45,21 @@ class MainActivity : AppCompatActivity() {
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener { buildAddWebsiteDialog(getString(R.string.add_webapp)) }
         personalizeToolbar()
+    }
 
-        AdblockLifecycleHelper(this).trySyncOperation({ AdFilter.create(applicationContext) })
+    override fun onPause() {
+        super.onPause()
+        Log.d("NativeAlpha", "MainActivity onPause")
+    }
 
+    override fun onStop() {
+        super.onStop()
+        Log.d("NativeAlpha", "MainActivity onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("NativeAlpha", "MainActivity onDestroy")
     }
 
     override fun onResume() {
@@ -75,8 +90,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun personalizeToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        toolbar.setTitle(R.string.app_name_plus)
+        toolbar.title = ""
         setSupportActionBar(toolbar)
+
+        findViewById<View>(R.id.app_logo)?.setOnClickListener {
+            val intent = Intent(this, com.cylonid.nativealpha.activities.NewsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -134,6 +154,7 @@ class MainActivity : AppCompatActivity() {
                 )
             )
             .setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
+                updateWebAppList()
                 val webapps = DataManager.getInstance().activeWebsites
                 for (i in webapps.indices.reversed()) {
                     val webapp = webapps[i]
@@ -144,16 +165,17 @@ class MainActivity : AppCompatActivity() {
                     MaterialAlertDialogBuilder(this, R.style.AppTheme_AlertDialog)
                         .setMessage(msg)
                         .setPositiveButton(R.string.ok) { _: DialogInterface?, _: Int ->
-                            val frag = ShortcutDialogFragment.newInstance(webapp)
+                            val frag = ShortcutDialogFragment.newInstance(webapp, true)
                             frag.show(supportFragmentManager, "SCFetcher-" + webapp.ID)
                         }
                         .setNegativeButton(R.string.cancel) { _: DialogInterface?, _: Int -> }
                         .create()
                         .show()
-
                 }
             }
-            .setNegativeButton(getString(R.string.cancel)) { _: DialogInterface?, _: Int -> }
+            .setNegativeButton(getString(R.string.cancel)) { _: DialogInterface?, _: Int ->
+                updateWebAppList()
+            }
             .create().show()
     }
 

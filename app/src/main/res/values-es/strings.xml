@@ -136,7 +136,7 @@
     <string name="allow_microphone_access">Permitir el acceso al micrófono</string>
     <string name="dialog_permission_microphone_title">Acceso al micrófono</string>
     <string name="dialog_permission_microphone_txt">¿Desea conceder a esta Aplicación Web acceso a su micrófono? Puedes revocar esta decisión en cualquier momento en el menú de configuración de la Aplicación Web.</string>
-    <string name="app_name_plus" translatable="false">Native Alpha +</string>
+    <string name="app_name_plus" translatable="false">Native Alpha++</string>
     <string name="shortcut_already_exists">Ya existe un acceso directo con este nombre. Por favor, elija otro nombre o elimine el acceso directo existente.</string>
     <string name="back">Volver</string>
     <string name="forward">Avanzar</string>

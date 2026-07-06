@@ -2,7 +2,13 @@ package com.cylonid.nativealpha.util
 
 import android.content.Context
 import android.content.pm.ShortcutManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.cylonid.nativealpha.R
+import com.cylonid.nativealpha.model.WebApp
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 object ShortcutIconUtils {
@@ -20,6 +26,28 @@ object ShortcutIconUtils {
                     context.getString(R.string.webapp_already_deleted)
                 )
             }
+        }
+    }
+
+    @JvmStatic
+    fun getIcon(context: Context, webApp: WebApp): Bitmap? {
+        val file = File(context.filesDir, "webapp_icon_${webApp.ID}.png")
+        return if (file.exists()) {
+            BitmapFactory.decodeFile(file.absolutePath)
+        } else {
+            null
+        }
+    }
+
+    @JvmStatic
+    fun saveIcon(context: Context, webApp: WebApp, bitmap: Bitmap) {
+        val file = File(context.filesDir, "webapp_icon_${webApp.ID}.png")
+        try {
+            FileOutputStream(file).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 

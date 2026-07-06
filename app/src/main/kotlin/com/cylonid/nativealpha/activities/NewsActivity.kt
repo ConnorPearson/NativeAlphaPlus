@@ -2,6 +2,8 @@ package com.cylonid.nativealpha.activities;
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
@@ -13,7 +15,9 @@ import android.webkit.WebViewClient
 
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.cylonid.nativealpha.BuildConfig
+import com.cylonid.nativealpha.R
 import com.cylonid.nativealpha.databinding.NewsActivityBinding
 import com.cylonid.nativealpha.model.DataManager
 import com.cylonid.nativealpha.util.LocaleUtils
@@ -38,6 +42,15 @@ class NewsActivity : AppCompatActivity(), View.OnTouchListener {
         binding = NewsActivityBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        if (isDarkMode) {
+            binding.newsMain.setBackgroundColor(Color.BLACK)
+            binding.newsContent.setBackgroundColor(Color.BLACK)
+        } else {
+            binding.newsMain.setBackgroundColor(ContextCompat.getColor(this, R.color.light_grey_surface))
+            binding.newsContent.setBackgroundColor(ContextCompat.getColor(this, R.color.light_grey_surface))
+        }
 
         binding.newsContent.settings.javaScriptEnabled = true
         binding.newsContent.isLongClickable = false

@@ -39,7 +39,7 @@ android {
         extended {
             dimension "default"
             applicationIdSuffix ".pro"
-            resValue "string", "app_name", "Native Alpha +"
+            resValue "string", "app_name", "Native Alpha++"
         }
         extendedGithub {
             dimension "default"

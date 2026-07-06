@@ -42,13 +42,21 @@
                 android:scaleType="center"
                 app:tint="?attr/colorOnSurfaceVariant" />
 
+            <ImageView
+                android:id="@+id/webappIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="12dp"
+                android:scaleType="fitCenter"
+                android:src="@mipmap/native_alpha" />
+
             <TextView
                 android:id="@+id/btnWebAppTitle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:maxLines="1"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 android:textColor="?attr/colorOnSurface"
                 android:ellipsize="end" />

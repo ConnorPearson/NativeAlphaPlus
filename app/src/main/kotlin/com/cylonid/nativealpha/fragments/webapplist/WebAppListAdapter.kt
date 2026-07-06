@@ -16,9 +16,9 @@ import com.cylonid.nativealpha.WebAppSettingsActivity
 import com.cylonid.nativealpha.model.DataManager
 import com.cylonid.nativealpha.model.WebApp
 import com.cylonid.nativealpha.util.Const
+import com.cylonid.nativealpha.util.ShortcutIconUtils
 import com.cylonid.nativealpha.util.WebViewLauncher.startWebView
 import com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeAdapter
-import com.google.android.material.internal.VisibilityAwareImageButton
 import java.util.ArrayList
 
 class WebAppListAdapter(dataSet: List<WebApp> = emptyList(), private val activityOfFragment: Activity)
@@ -26,6 +26,7 @@ class WebAppListAdapter(dataSet: List<WebApp> = emptyList(), private val activit
 
     class ViewHolder(webAppLayout: View) : DragDropSwipeAdapter.ViewHolder(webAppLayout) {
         val dragAnchor : ImageView = itemView.findViewById(R.id.dragAnchor)
+        val iconView: ImageView = itemView.findViewById(R.id.webappIcon)
         val titleView: TextView = itemView.findViewById(R.id.btnWebAppTitle)
 
     }
@@ -33,6 +34,14 @@ class WebAppListAdapter(dataSet: List<WebApp> = emptyList(), private val activit
     override fun getViewHolder(itemView: View) = ViewHolder(itemView)
     override fun onBindViewHolder(item: WebApp, viewHolder: ViewHolder, position: Int) {
         viewHolder.titleView.text = item.title
+        
+        val icon = ShortcutIconUtils.getIcon(activityOfFragment, item)
+        if (icon != null) {
+            viewHolder.iconView.setImageBitmap(icon)
+        } else {
+            viewHolder.iconView.setImageResource(R.mipmap.native_alpha)
+        }
+
         viewHolder.titleView.setOnClickListener {
             openWebView(
                 item
