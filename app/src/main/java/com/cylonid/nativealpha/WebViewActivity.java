@@ -177,21 +177,33 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             Iterator<String> keys = json.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
-                String normalizedKey = key.toLowerCase();
-                if (normalizedKey.contains("://")) {
-                    Uri uri = Uri.parse(normalizedKey);
-                    if (uri.getHost() != null) normalizedKey = uri.getHost();
-                }
-                // Strip common prefixes for better matching
-                if (normalizedKey.startsWith("www.")) normalizedKey = normalizedKey.substring(4);
+                String normalizedKey = Utility.getCanonicalHost(key);
+                if (normalizedKey.isEmpty()) continue;
                 
-                // If multiple keys normalize to the same host, merge them
                 if (normalized.has(normalizedKey)) {
                     JSONObject existing = normalized.getJSONObject(normalizedKey);
                     JSONObject current = json.getJSONObject(key);
                     Iterator<String> currentKeys = current.keys();
                     while (currentKeys.hasNext()) {
                         String subKey = currentKeys.next();
+                        if (subKey.equals("remove") || subKey.equals("injectCss")) {
+                            JSONArray existingArr = existing.optJSONArray(subKey);
+                            JSONArray currentArr = current.optJSONArray(subKey);
+                            if (existingArr != null && currentArr != null) {
+                                for (int i = 0; i < currentArr.length(); i++) {
+                                    String val = currentArr.getString(i);
+                                    boolean exists = false;
+                                    for (int k = 0; k < existingArr.length(); k++) {
+                                        if (existingArr.getString(k).equals(val)) {
+                                            exists = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!exists) existingArr.put(val);
+                                }
+                                continue;
+                            }
+                        }
                         existing.put(subKey, current.get(subKey));
                     }
                 } else {
@@ -199,7 +211,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("NativeAlpha", "Error normalizing JSON", e);
         }
         return normalized;
     }
@@ -1077,14 +1089,14 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 .setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> handler.cancel())
                 .show();
     }
-    private void applySiteRules(WebView view, String url, boolean isDomReady) {
+    private void applySiteRules(WebView view, String url) {
         try {
             JSONObject site = getSiteConfig(url);
             if (site == null) return;
 
             StringBuilder cssToInject = new StringBuilder();
 
-            // 1. Convert 'remove' array to hiding CSS to prevent shifting
+            // 1. Convert 'remove' array to hiding CSS
             JSONArray remove = site.optJSONArray("remove");
             if (remove != null && remove.length() > 0) {
                 for (int j = 0; j < remove.length(); j++) {
@@ -1104,24 +1116,42 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
             if (cssToInject.length() > 0) {
                 String js = "(function() {" +
-                        "var style = document.getElementById('na-site-rules') || document.createElement('style');" +
-                        "style.id = 'na-site-rules';" +
-                        "style.textContent = " + JSONObject.quote(cssToInject.toString()) + ";" +
-                        "if (!style.parentElement) (document.head || document.documentElement).appendChild(style);" +
+                        "  var run = function() {" +
+                        "    var style = document.getElementById('na-site-rules') || document.createElement('style');" +
+                        "    style.id = 'na-site-rules';" +
+                        "    var css = " + JSONObject.quote(cssToInject.toString()) + ";" +
+                        "    if (style.textContent !== css) style.textContent = css;" +
+                        "    if (!style.parentElement) (document.head || document.documentElement).appendChild(style);" +
+                        "  };" +
+                        "  if (document.readyState === 'loading') {" +
+                        "    document.addEventListener('DOMContentLoaded', run);" +
+                        "  } else { run(); }" +
+                        "  /* Robust removal via Shadow-aware Observer */" +
+                        "  var selectors = " + (remove != null ? remove.toString() : "[]") + ";" +
+                        "  if (selectors.length > 0) {" +
+                        "    var hideInRoot = function(root) {" +
+                        "      selectors.forEach(function(s) {" +
+                        "        try {" +
+                        "          var elms = root.querySelectorAll(s);" +
+                        "          for(var i=0; i<elms.length; i++) {" +
+                        "            if (elms[i].style.display !== 'none') elms[i].style.display = 'none';" +
+                        "          }" +
+                        "        } catch(e) {}" +
+                        "      });" +
+                        "      /* Pierce Shadow DOM lazily */" +
+                        "      var all = root.querySelectorAll('*');" +
+                        "      for(var i=0; i<all.length; i++) if(all[i].shadowRoot) hideInRoot(all[i].shadowRoot);" +
+                        "    };" +
+                        "    var timer = null;" +
+                        "    var apply = function() {" +
+                        "      if (timer) clearTimeout(timer);" +
+                        "      timer = setTimeout(function(){ hideInRoot(document); }, 100);" +
+                        "    };" +
+                        "    apply();" +
+                        "    new MutationObserver(apply).observe(document.documentElement, {childList:true, subtree:true});" +
+                        "  }" +
                         "})();";
                 view.evaluateJavascript(js, null);
-            }
-
-            // 3. Actual DOM removal (cleanup) - only run if DOM is likely ready
-            if (isDomReady && remove != null && remove.length() > 0) {
-                StringBuilder removeJs = new StringBuilder("(function(){");
-                for (int j = 0; j < remove.length(); j++) {
-                    removeJs.append("document.querySelectorAll(")
-                            .append(JSONObject.quote(remove.getString(j)))
-                            .append(").forEach(function(e){e.remove();});");
-                }
-                removeJs.append("})();");
-                view.evaluateJavascript(removeJs.toString(), null);
             }
 
         } catch (Exception e) {
@@ -1271,13 +1301,13 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
         @Override
         public void onPageCommitVisible(WebView view, String url) {
-            applySiteRules(view, url, true);
+            applySiteRules(view, url);
             super.onPageCommitVisible(view, url);
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
-            applySiteRules(view, url, true);
+            applySiteRules(view, url);
 
             if (url.equals("about:blank")) {
                 String langExtension = LocaleUtils.getFileEnding();
@@ -1301,7 +1331,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             applySiteSystemBars(url);
-            applySiteRules(view, url, false);
+            applySiteRules(view, url);
             adFilter.performScript(view, url);
 
             super.onPageStarted(view, url, favicon);

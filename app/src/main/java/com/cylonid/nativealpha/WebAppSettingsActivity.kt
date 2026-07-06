@@ -125,13 +125,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
     }
 
     private fun setupSiteRulesLogic(modifiedWebapp: WebApp) {
-        val rawUrl = modifiedWebapp.baseUrl.lowercase()
-        val host = if (rawUrl.contains("://")) {
-            android.net.Uri.parse(rawUrl).host ?: ""
-        } else {
-            android.net.Uri.parse("https://$rawUrl").host ?: rawUrl
-        }
-
+        val host = Utility.getCanonicalHost(modifiedWebapp.baseUrl)
         if (host.isEmpty()) {
             binding.sectionSiteRules.visibility = View.GONE
             return
@@ -302,12 +296,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
 
     private fun setupSaveAndCancel(modifiedWebapp: WebApp) {
         binding.btnSave.setOnClickListener {
-            val rawUrl = modifiedWebapp.baseUrl.lowercase()
-            val host = if (rawUrl.contains("://")) {
-                android.net.Uri.parse(rawUrl).host ?: ""
-            } else {
-                android.net.Uri.parse("https://$rawUrl").host ?: rawUrl
-            }
+            val host = Utility.getCanonicalHost(modifiedWebapp.baseUrl)
             saveSiteRules(host)
 
             val activityManager =

@@ -16,9 +16,16 @@ public final class Utility {
             android.net.Uri uri = android.net.Uri.parse(host);
             if (uri.getHost() != null) host = uri.getHost();
         }
+        
+        // Strip common mobile and sub-domain prefixes
         if (host.startsWith("www.")) {
             host = host.substring(4);
+        } else if (host.startsWith("m.")) {
+            host = host.substring(2);
+        } else if (host.startsWith("mobile.")) {
+            host = host.substring(7);
         }
+
         return host;
     }
 
