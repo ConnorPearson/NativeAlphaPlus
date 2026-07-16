@@ -46,6 +46,7 @@ import android.widget.FrameLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -124,7 +125,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private Map<String, String> CUSTOM_HEADERS;
     protected ValueCallback<Uri[]> filePathCallback;
 
-    private boolean quitOnNextBackpress = false;
+
     private Handler reload_handler = null;
     private WebApp webapp = null;
     private String urlOnFirstPageload = "";
@@ -219,6 +220,17 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (wv != null && wv.canGoBack()) {
+                    wv.goBack();
+                } else {
+                    finish();
+                }
+            }
+        });
 
         adblockLifecycleHelper = new AdblockLifecycleHelper(this);
         adblockLifecycleHelper.trySyncOperation(() -> adFilter = AdFilter.Companion.get(getApplicationContext()));
@@ -475,7 +487,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                                     WebViewLauncher.startWebView(DataManager.getInstance().getSuccessor(webappID), WebViewActivity.this);
                                     finish();
                                 } else if (DataManager.getInstance().getSettings().isTwoFingerMultitouch())
-                                    onBackPressed();
+                                    getOnBackPressedDispatcher().onBackPressed();
 
                             }
                             return true;
@@ -648,7 +660,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                     wv.goForward();
                     return true;
                 case R.id.cmItemBack:
-                    onBackPressed();
+                    getOnBackPressedDispatcher().onBackPressed();
                     return true;
                 case R.id.cmItemReload:
                     wv.reload();
@@ -700,25 +712,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         this.setDarkModeIfNeeded();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (webapp == null) return;
 
-        if(wv.canGoBack()) {
-            wv.goBack();
-            return;
-        }
-
-        if(quitOnNextBackpress) {
-            quitOnNextBackpress = false;
-            moveTaskToBack(true);
-            return;
-        }
-
-        loadURL(wv, webapp.getBaseUrl());
-        quitOnNextBackpress = true;
-
-    }
 
     @Override
     protected void onResume() {
